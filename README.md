@@ -1,3 +1,95 @@
+# Repository Intelligence — Run & Host Instructions
+
+This project uses a FastAPI-based "parser" service (in `parser-workflow`) and a Flask-based main app (in `repo-ai`). Run both services in parallel (two terminals) during development.
+
+## Prerequisites
+- Python 3.10+ (Windows-compatible)
+- Install dependencies (from the repo root or per-subproject):
+
+```bash
+python -m pip install -r parser-workflow/requirements-minimal.txt
+python -m pip install -r repo-ai/requirements-minimal.txt
+```
+
+## Run locally (development)
+
+Open two terminals.
+
+Terminal A — parser (FastAPI + Uvicorn)
+
+1. Change to the parser folder:
+
+```bash
+cd parser-workflow
+```
+
+2a. Recommended (uses helper that finds a free port):
+
+```bash
+python run_server.py
+```
+
+2b. Or run Uvicorn directly (reload enabled):
+
+```bash
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Notes: the helper `run_server.py` will print the API and docs URL and fallback to a free port if the configured port is busy.
+
+Terminal B — main app (Flask)
+
+```bash
+cd repo-ai
+python app.py
+```
+
+This starts the Flask testing interface on `http://localhost:5000` by default. The Flask app will attempt to contact the parser service for indexing and health checks.
+
+### Verify
+
+- Parser docs: open `http://127.0.0.1:8000/docs` (or the printed URL from `run_server.py`).
+- Main app health: `http://127.0.0.1:5000/api/health`
+
+## Running in Production / Hosting notes
+
+FastAPI (parser) — recommended: run behind an ASGI process manager (Gunicorn + Uvicorn workers) or a container.
+
+Example (Linux):
+
+```bash
+pip install gunicorn uvicorn
+gunicorn -k uvicorn.workers.UvicornWorker main:app -w 4 -b 0.0.0.0:8000
+```
+
+Flask (main app) — recommended: use Gunicorn on Linux, or Waitress on Windows.
+
+Example (Linux):
+
+```bash
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:5000 repo-ai.app:app
+```
+
+Example (Windows):
+
+```bash
+pip install waitress
+waitress-serve --port=5000 repo-ai.app:app
+```
+
+Deployment options:
+- Docker + Docker Compose to run both services and a reverse proxy (Nginx).
+- Host each service separately on cloud providers (e.g., Azure App Service, AWS ECS, or GCP Run) and configure DNS / proxy.
+
+## Notes & Troubleshooting
+- If a port is already in use, `parser-workflow/run_server.py` will pick a free port and print it.
+- Ensure the parser service URL is reachable from the main app; update integration endpoints if you deploy services to different hosts.
+- For CI and automated checks, keep the local dev commands (`uvicorn` and `python app.py`) as they are quick to run.
+
+---
+
+If you want, I can add a `docker-compose.yml` that brings both services up together and exposes the health endpoints. Want me to create that next?
 # AI-Bob Consolidated Documentation
 
 This single consolidated document replaces the multiple individual Markdown files. It contains the essential setup and run steps, key fixes, and troubleshooting notes needed to run the platform. Originals were removed to keep the repository clean; ask if you want any of them restored.
