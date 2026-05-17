@@ -117,3 +117,22 @@ env/
 
 # Ignore Windows batch files (keep them locally but do not track)
 *.bat
+
+# Test files and folders
+# Python tests
+tests/
+test_*.py
+*_test.py
+*_tests.py
+*test_*.py
+
+# Common JS test patterns
+*.spec.js
+*.test.js
+
+# pytest cache and temp
+.pytest_cache/
+
+# coverage and junit
+junit.xml
+
