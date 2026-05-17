@@ -1,0 +1,11 @@
+# Minimal requirements for Parser Workflow (Python 3.14 compatible)
+fastapi>=0.110.0
+uvicorn[standard]>=0.26.0
+pydantic>=2.8.0
+python-multipart>=0.0.6
+httpx>=0.27.0
+networkx>=3.2
+aiofiles>=23.2.1
+python-dotenv>=1.0.0
+gitpython>=3.1.40
+websockets>=12.0

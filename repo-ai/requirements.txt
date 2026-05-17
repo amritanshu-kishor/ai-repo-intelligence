@@ -1,0 +1,6 @@
+requests>=2.31.0
+python-dotenv
+huggingface_hub
+flask>=3.0.0
+flask-cors>=4.0.0
+ibm-watsonx-ai>=0.2.0

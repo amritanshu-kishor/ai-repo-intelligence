@@ -1,0 +1,2416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Repository Intelligence Platform</title>
+    
+    <!-- Cytoscape.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+/* AI Repository Intelligence Platform - Styles */
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --dark-bg: #1a1a2e;
+    --darker-bg: #16213e;
+    --card-bg: #0f3460;
+    --text-primary: #e8e8e8;
+    --text-secondary: #a0a0a0;
+    --border-color: #2d3748;
+    --success-color: #2ecc71;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--dark-bg);
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
+
+/* Header */
+.header {
+    background: var(--darker-bg);
+    border-bottom: 2px solid var(--primary-color);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.header-controls input {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-radius: 4px;
+    min-width: 200px;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.btn-block {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Container */
+.container {
+    display: flex;
+    height: calc(100vh - 80px);
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 280px;
+    background: var(--darker-bg);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.sidebar-section {
+    margin-bottom: 2rem;
+}
+
+.sidebar-section h3 {
+    font-size: 1rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.control-group {
+    margin-bottom: 1rem;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.filter-group input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: var(--card-bg);
+    border-radius: 4px;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.stat-value {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.search-results {
+    margin-top: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 0.5rem;
+    background: var(--card-bg);
+    margin-bottom: 0.3rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-result-item:hover {
+    background: var(--primary-color);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    background: var(--darker-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 1rem;
+}
+
+.tab-btn {
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(52, 152, 219, 0.1);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.tab-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+.tab-pane {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Graph Container */
+.graph-container {
+    position: relative;
+    height: 100%;
+    background: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.cytoscape-container {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+}
+
+.cytoscape-container-small {
+    width: 100%;
+    height: 400px;
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+    border-radius: 8px;
+}
+
+.graph-minimap {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 150px;
+    height: 150px;
+    background: rgba(15, 52, 96, 0.9);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.graph-legend {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(15, 52, 96, 0.95);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.graph-legend h4 {
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.85rem;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+}
+
+/* Node Details */
+.node-details {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 300px;
+    max-height: 80%;
+    background: rgba(15, 52, 96, 0.98);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.node-details.hidden {
+    display: none;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    color: var(--danger-color);
+}
+
+#detailsTitle {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+#detailsContent {
+    font-size: 0.9rem;
+}
+
+#detailsContent p {
+    margin-bottom: 0.5rem;
+}
+
+/* Analytics Grid */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 1.5rem;
+}
+
+.chart-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.chart-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.chart-card canvas {
+    max-height: 300px;
+}
+
+/* Comparison */
+.comparison-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.comparison-controls input {
+    flex: 1;
+}
+
+.comparison-results {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.comparison-graph {
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.comparison-graph h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.comparison-metrics {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.comparison-metrics h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+#comparisonMetrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.metric-card {
+    background: var(--darker-bg);
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.metric-card h4 {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.metric-card .value {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* AI Insights */
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.insight-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.insight-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.insight-content {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.insight-list {
+    list-style: none;
+}
+
+.insight-list li {
+    padding: 0.5rem;
+    background: var(--darker-bg);
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    border-left: 3px solid var(--primary-color);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 26, 46, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-overlay.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-overlay p {
+    margin-top: 1rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+/* Toast Notifications */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.toast {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-color);
+    padding: 1rem;
+    border-radius: 4px;
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+}
+
+.toast.success {
+    border-left-color: var(--success-color);
+}
+
+.toast.error {
+    border-left-color: var(--danger-color);
+}
+
+.toast.warning {
+    border-left-color: var(--warning-color);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--darker-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .header-controls {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .header-controls input {
+        width: 100%;
+    }
+}
+
+/* Made with Bob */
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-brain"></i> AI Repository Intelligence Platform</h1>
+            <div class="header-controls">
+                <button id="uploadBtn" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Upload Repository ZIP
+                </button>
+                <input type="text" id="repositoryId" placeholder="Repository ID (optional)" value="">
+                <button id="loadGraphBtn" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Load Graph
+                </button>
+                <button id="streamGraphBtn" class="btn btn-success">
+                    <i class="fas fa-stream"></i> Stream Live
+                </button>
+            </div>
+            <input type="file" id="fileInput" accept=".zip" style="display: none;">
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3><i class="fas fa-cog"></i> Graph Controls</h3>
+                <div class="control-group">
+                    <label>Layout:</label>
+                    <select id="layoutSelect" class="form-control">
+                        <option value="cose">COSE (Force-directed)</option>
+                        <option value="breadthfirst">Breadth First</option>
+                        <option value="concentric">Concentric</option>
+                        <option value="circle">Circle</option>
+                        <option value="grid">Grid</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <button id="fitGraphBtn" class="btn btn-sm btn-block">
+                        <i class="fas fa-expand"></i> Fit Graph
+                    </button>
+                    <button id="resetZoomBtn" class="btn btn-sm btn-block">
+                        <i class="fas fa-search-minus"></i> Reset Zoom
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="fas fa-filter"></i> Filters</h3>
+                <div class="filter-group">
+                    <label>
+                        <input type="checkbox" id="filterFiles" checked> Files
+                    </label>
+                    <label>
+                        <input type="checkbox" id="filterClasses" checked> Classes
+                    </label>
+                    <label>
+                        <input type="checkbox" id="filterFunctions" checked> Functions
+                    </label>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="fas fa-search"></i> Search</h3>
+                <input type="text" id="searchInput" class="form-control" placeholder="Search nodes...">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="fas fa-info-circle"></i> Graph Stats</h3>
+                <div id="graphStats" class="stats-container">
+                    <div class="stat-item">
+                        <span class="stat-label">Nodes:</span>
+                        <span class="stat-value" id="nodeCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Edges:</span>
+                        <span class="stat-value" id="edgeCount">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Density:</span>
+                        <span class="stat-value" id="density">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="graph">
+                    <i class="fas fa-project-diagram"></i> Graph View
+                </button>
+                <button class="tab-btn" data-tab="analytics">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </button>
+                <button class="tab-btn" data-tab="comparison">
+                    <i class="fas fa-balance-scale"></i> Comparison
+                </button>
+                <button class="tab-btn" data-tab="ai-insights">
+                    <i class="fas fa-robot"></i> AI Insights
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Graph View Tab -->
+                <div id="graph-tab" class="tab-pane active">
+                    <div class="graph-container">
+                        <div id="cy" class="cytoscape-container"></div>
+                        <div class="graph-minimap" id="minimap"></div>
+                        <div class="graph-legend">
+                            <h4>Legend</h4>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #3498db;"></span> File
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #f39c12;"></span> Class
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #2ecc71;"></span> Function
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #e74c3c;"></span> Module
+                            </div>
+                        </div>
+                    </div>
+                    <div id="nodeDetails" class="node-details hidden">
+                        <button class="close-btn" id="closeDetails">&times;</button>
+                        <h3 id="detailsTitle">Node Details</h3>
+                        <div id="detailsContent"></div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tab -->
+                <div id="analytics-tab" class="tab-pane">
+                    <div class="analytics-grid">
+                        <div class="chart-card">
+                            <h3>Dependency Density</h3>
+                            <canvas id="dependencyChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Language Distribution</h3>
+                            <canvas id="languageChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Complexity Metrics</h3>
+                            <canvas id="complexityChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Node Type Distribution</h3>
+                            <canvas id="nodeTypeChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Centrality Analysis</h3>
+                            <canvas id="centralityChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Graph Evolution</h3>
+                            <canvas id="evolutionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Tab -->
+                <div id="comparison-tab" class="tab-pane">
+                    <div class="comparison-controls">
+                        <input type="text" id="repo1Input" placeholder="Repository 1 ID" class="form-control">
+                        <input type="text" id="repo2Input" placeholder="Repository 2 ID" class="form-control">
+                        <button id="compareBtn" class="btn btn-primary">
+                            <i class="fas fa-balance-scale"></i> Compare
+                        </button>
+                    </div>
+                    <div id="comparisonResults" class="comparison-results">
+                        <div class="comparison-grid">
+                            <div class="comparison-graph">
+                                <h3>Repository 1</h3>
+                                <div id="cy1" class="cytoscape-container-small"></div>
+                            </div>
+                            <div class="comparison-graph">
+                                <h3>Repository 2</h3>
+                                <div id="cy2" class="cytoscape-container-small"></div>
+                            </div>
+                        </div>
+                        <div class="comparison-metrics">
+                            <h3>Comparison Metrics</h3>
+                            <div id="comparisonMetrics"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights Tab -->
+                <div id="ai-insights-tab" class="tab-pane">
+                    <div class="insights-grid">
+                        <div class="insight-card">
+                            <h3><i class="fas fa-brain"></i> Knowledge Graph</h3>
+                            <div id="knowledgeGraph" class="insight-content"></div>
+                        </div>
+                        <div class="insight-card">
+                            <h3><i class="fas fa-project-diagram"></i> RAG Pipeline</h3>
+                            <div id="ragPipeline" class="insight-content"></div>
+                        </div>
+                        <div class="insight-card">
+                            <h3><i class="fas fa-circle-notch"></i> Circular Dependencies</h3>
+                            <div id="circularDeps" class="insight-content"></div>
+                        </div>
+                        <div class="insight-card">
+                            <h3><i class="fas fa-star"></i> AI Attention Scores</h3>
+                            <div id="attentionScores" class="insight-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Loading graph data...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    
+    
+    
+    
+
+    <script>
+/**
+ * Cytoscape.js Graph Visualization Module
+ * Handles graph rendering, interactions, and animations
+ */
+
+class GraphVisualizer {
+    constructor(containerId) {
+        this.containerId = containerId;
+        this.cy = null;
+        this.currentLayout = 'cose';
+        this.initializeCytoscape();
+    }
+
+    initializeCytoscape() {
+        this.cy = cytoscape({
+            container: document.getElementById(this.containerId),
+            
+            style: [
+                // Node styles - Enhanced with gradients and shadows
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': '#3498db',
+                        'label': 'data(label)',
+                        'color': '#fff',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'font-size': '11px',
+                        'font-weight': 'bold',
+                        'width': '60px',
+                        'height': '60px',
+                        'border-width': 3,
+                        'border-color': '#2980b9',
+                        'text-outline-width': 2,
+                        'text-outline-color': '#0f3460',
+                        'text-wrap': 'wrap',
+                        'text-max-width': '80px',
+                        'overlay-padding': '6px',
+                        'z-index': 10
+                    }
+                },
+                // File nodes - Blue with document icon style
+                {
+                    selector: 'node[node_type="file"]',
+                    style: {
+                        'background-color': '#3498db',
+                        'background-gradient-stop-colors': '#3498db #2980b9',
+                        'background-gradient-direction': 'to-bottom',
+                        'shape': 'roundrectangle',
+                        'width': '70px',
+                        'height': '70px',
+                        'border-width': 4,
+                        'border-color': '#1a5490',
+                        'font-size': '10px'
+                    }
+                },
+                // Class nodes - Orange diamond
+                {
+                    selector: 'node[node_type="class"]',
+                    style: {
+                        'background-color': '#f39c12',
+                        'background-gradient-stop-colors': '#f39c12 #e67e22',
+                        'background-gradient-direction': 'to-bottom',
+                        'shape': 'diamond',
+                        'width': '65px',
+                        'height': '65px',
+                        'border-width': 4,
+                        'border-color': '#d68910'
+                    }
+                },
+                // Function nodes - Green circle
+                {
+                    selector: 'node[node_type="function"]',
+                    style: {
+                        'background-color': '#2ecc71',
+                        'background-gradient-stop-colors': '#2ecc71 #27ae60',
+                        'background-gradient-direction': 'to-bottom',
+                        'shape': 'ellipse',
+                        'width': '55px',
+                        'height': '55px',
+                        'border-width': 3,
+                        'border-color': '#1e8449'
+                    }
+                },
+                // Module nodes - Red hexagon
+                {
+                    selector: 'node[node_type="module"]',
+                    style: {
+                        'background-color': '#e74c3c',
+                        'background-gradient-stop-colors': '#e74c3c #c0392b',
+                        'background-gradient-direction': 'to-bottom',
+                        'shape': 'hexagon',
+                        'width': '65px',
+                        'height': '65px',
+                        'border-width': 4,
+                        'border-color': '#a93226'
+                    }
+                },
+                // API nodes - Purple star
+                {
+                    selector: 'node[node_type="api"]',
+                    style: {
+                        'background-color': '#9b59b6',
+                        'background-gradient-stop-colors': '#9b59b6 #8e44ad',
+                        'background-gradient-direction': 'to-bottom',
+                        'shape': 'star',
+                        'width': '70px',
+                        'height': '70px',
+                        'border-width': 4,
+                        'border-color': '#6c3483'
+                    }
+                },
+                // Edge styles - Enhanced with labels and better visibility
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 3,
+                        'line-color': '#5d6d7e',
+                        'target-arrow-color': '#5d6d7e',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'arrow-scale': 2,
+                        'label': 'data(relationship)',
+                        'font-size': '9px',
+                        'color': '#bdc3c7',
+                        'text-outline-width': 2,
+                        'text-outline-color': '#1c2833',
+                        'text-rotation': 'autorotate',
+                        'text-margin-y': -10,
+                        'opacity': 0.8
+                    }
+                },
+                // Import edges - Blue with label
+                {
+                    selector: 'edge[relationship="imports"]',
+                    style: {
+                        'line-color': '#3498db',
+                        'target-arrow-color': '#3498db',
+                        'width': 3,
+                        'line-style': 'solid'
+                    }
+                },
+                // Contains edges - Gray dashed
+                {
+                    selector: 'edge[relationship="contains"]',
+                    style: {
+                        'line-color': '#95a5a6',
+                        'target-arrow-color': '#95a5a6',
+                        'line-style': 'dashed',
+                        'width': 2
+                    }
+                },
+                // Calls edges - Green
+                {
+                    selector: 'edge[relationship="calls"]',
+                    style: {
+                        'line-color': '#2ecc71',
+                        'target-arrow-color': '#2ecc71',
+                        'width': 2.5
+                    }
+                },
+                // Extends edges - Orange
+                {
+                    selector: 'edge[relationship="extends"]',
+                    style: {
+                        'line-color': '#f39c12',
+                        'target-arrow-color': '#f39c12',
+                        'width': 3,
+                        'line-style': 'solid'
+                    }
+                },
+                // Implements edges - Purple
+                {
+                    selector: 'edge[relationship="implements"]',
+                    style: {
+                        'line-color': '#9b59b6',
+                        'target-arrow-color': '#9b59b6',
+                        'width': 2.5
+                    }
+                },
+                // Highlighted nodes - Glowing effect
+                {
+                    selector: 'node.highlighted',
+                    style: {
+                        'border-width': 6,
+                        'border-color': '#f1c40f',
+                        'background-color': '#f39c12',
+                        'z-index': 999,
+                        'overlay-color': '#f39c12',
+                        'overlay-opacity': 0.4,
+                        'overlay-padding': 8
+                    }
+                },
+                // Selected nodes - Strong highlight
+                {
+                    selector: 'node:selected',
+                    style: {
+                        'border-width': 6,
+                        'border-color': '#e74c3c',
+                        'overlay-color': '#e74c3c',
+                        'overlay-opacity': 0.4,
+                        'overlay-padding': 12,
+                        'z-index': 999
+                    }
+                },
+                // Highlighted edges
+                {
+                    selector: 'edge.highlighted',
+                    style: {
+                        'width': 5,
+                        'line-color': '#f39c12',
+                        'target-arrow-color': '#f39c12',
+                        'opacity': 1,
+                        'z-index': 999
+                    }
+                },
+                // Faded nodes (for focus mode)
+                {
+                    selector: 'node.faded',
+                    style: {
+                        'opacity': 0.2
+                    }
+                },
+                {
+                    selector: 'edge.faded',
+                    style: {
+                        'opacity': 0.1
+                    }
+                },
+                // Hover effect
+                {
+                    selector: 'node:active',
+                    style: {
+                        'overlay-color': '#3498db',
+                        'overlay-opacity': 0.3
+                    }
+                }
+            ],
+
+            layout: {
+                name: 'cose',
+                animate: true,
+                animationDuration: 1000
+            },
+
+            wheelSensitivity: 0.2,
+            minZoom: 0.1,
+            maxZoom: 3
+        });
+
+        this.setupEventHandlers();
+    }
+
+    setupEventHandlers() {
+        // Node tap event
+        this.cy.on('tap', 'node', (evt) => {
+            const node = evt.target;
+            this.showNodeDetails(node);
+            this.highlightConnectedNodes(node);
+        });
+
+        // Node hover event
+        this.cy.on('mouseover', 'node', (evt) => {
+            const node = evt.target;
+            node.style('cursor', 'pointer');
+        });
+
+        // Background tap (deselect)
+        this.cy.on('tap', (evt) => {
+            if (evt.target === this.cy) {
+                this.clearHighlights();
+                this.hideNodeDetails();
+            }
+        });
+
+        // Context menu (right-click)
+        this.cy.on('cxttap', 'node', (evt) => {
+            const node = evt.target;
+            this.showContextMenu(node, evt.renderedPosition);
+        });
+    }
+
+    loadGraph(graphData) {
+        if (!graphData || !graphData.elements) {
+            console.error('Invalid graph data');
+            return;
+        }
+
+        this.cy.elements().remove();
+        this.cy.add(graphData.elements);
+        this.applyLayout(this.currentLayout);
+        this.updateStats();
+    }
+
+    applyLayout(layoutName) {
+        this.currentLayout = layoutName;
+        
+        const layoutOptions = {
+            name: layoutName,
+            animate: true,
+            animationDuration: 1000,
+            fit: true,
+            padding: 50
+        };
+
+        // Layout-specific options
+        if (layoutName === 'cose') {
+            layoutOptions.nodeRepulsion = 8000;
+            layoutOptions.idealEdgeLength = 100;
+            layoutOptions.edgeElasticity = 100;
+            layoutOptions.nestingFactor = 5;
+            layoutOptions.gravity = 80;
+            layoutOptions.numIter = 1000;
+        } else if (layoutName === 'breadthfirst') {
+            layoutOptions.directed = true;
+            layoutOptions.spacingFactor = 1.5;
+        } else if (layoutName === 'concentric') {
+            layoutOptions.concentric = (node) => node.degree();
+            layoutOptions.levelWidth = () => 2;
+        }
+
+        const layout = this.cy.layout(layoutOptions);
+        layout.run();
+    }
+
+    highlightConnectedNodes(node) {
+        // Clear previous highlights
+        this.clearHighlights();
+
+        // Highlight the selected node
+        node.addClass('highlighted');
+
+        // Highlight connected nodes and edges
+        const connectedNodes = node.neighborhood('node');
+        const connectedEdges = node.connectedEdges();
+
+        connectedNodes.addClass('highlighted');
+        connectedEdges.addClass('highlighted');
+
+        // Fade non-connected elements
+        this.cy.elements().not(node).not(connectedNodes).not(connectedEdges).addClass('faded');
+    }
+
+    clearHighlights() {
+        this.cy.elements().removeClass('highlighted faded');
+    }
+
+    showNodeDetails(node) {
+        const detailsPanel = document.getElementById('nodeDetails');
+        const detailsTitle = document.getElementById('detailsTitle');
+        const detailsContent = document.getElementById('detailsContent');
+
+        detailsTitle.textContent = node.data('label');
+
+        let html = '<div class="node-info">';
+        html += `<p><strong>Type:</strong> ${node.data('node_type')}</p>`;
+        html += `<p><strong>ID:</strong> ${node.data('id')}</p>`;
+        
+        if (node.data('language')) {
+            html += `<p><strong>Language:</strong> ${node.data('language')}</p>`;
+        }
+        
+        if (node.data('classes') !== undefined) {
+            html += `<p><strong>Classes:</strong> ${node.data('classes')}</p>`;
+        }
+        
+        if (node.data('functions') !== undefined) {
+            html += `<p><strong>Functions:</strong> ${node.data('functions')}</p>`;
+        }
+        
+        if (node.data('imports') !== undefined) {
+            html += `<p><strong>Imports:</strong> ${node.data('imports')}</p>`;
+        }
+
+        html += `<p><strong>Connections:</strong> ${node.degree()}</p>`;
+        html += `<p><strong>In-degree:</strong> ${node.indegree()}</p>`;
+        html += `<p><strong>Out-degree:</strong> ${node.outdegree()}</p>`;
+        html += '</div>';
+
+        detailsContent.innerHTML = html;
+        detailsPanel.classList.remove('hidden');
+    }
+
+    hideNodeDetails() {
+        document.getElementById('nodeDetails').classList.add('hidden');
+    }
+
+    showContextMenu(node, position) {
+        // Context menu implementation
+        console.log('Context menu for node:', node.data('id'));
+        // TODO: Implement context menu
+    }
+
+    fitGraph() {
+        this.cy.fit(null, 50);
+    }
+
+    resetZoom() {
+        this.cy.zoom(1);
+        this.cy.center();
+    }
+
+    searchNodes(query) {
+        if (!query) {
+            this.clearHighlights();
+            return [];
+        }
+
+        const results = [];
+        this.cy.nodes().forEach(node => {
+            const label = node.data('label').toLowerCase();
+            const id = node.data('id').toLowerCase();
+            
+            if (label.includes(query.toLowerCase()) || id.includes(query.toLowerCase())) {
+                results.push({
+                    node: node,
+                    label: node.data('label'),
+                    type: node.data('node_type')
+                });
+            }
+        });
+
+        return results;
+    }
+
+    focusNode(nodeId) {
+        const node = this.cy.getElementById(nodeId);
+        if (node.length > 0) {
+            this.cy.animate({
+                center: { eles: node },
+                zoom: 2
+            }, {
+                duration: 500
+            });
+            this.highlightConnectedNodes(node);
+            this.showNodeDetails(node);
+        }
+    }
+
+    filterByNodeType(types) {
+        this.cy.nodes().forEach(node => {
+            const nodeType = node.data('node_type');
+            if (types.includes(nodeType)) {
+                node.style('display', 'element');
+            } else {
+                node.style('display', 'none');
+            }
+        });
+    }
+
+    updateStats() {
+        document.getElementById('nodeCount').textContent = this.cy.nodes().length;
+        document.getElementById('edgeCount').textContent = this.cy.edges().length;
+        
+        const density = this.cy.nodes().length > 1 
+            ? (2 * this.cy.edges().length) / (this.cy.nodes().length * (this.cy.nodes().length - 1))
+            : 0;
+        document.getElementById('density').textContent = density.toFixed(4);
+    }
+
+    exportImage() {
+        const png = this.cy.png({
+            output: 'blob',
+            bg: '#0f3460',
+            full: true,
+            scale: 2
+        });
+        return png;
+    }
+
+    destroy() {
+        if (this.cy) {
+            this.cy.destroy();
+        }
+    }
+}
+
+// Export for use in other modules
+window.GraphVisualizer = GraphVisualizer;
+
+// Made with Bob
+
+
+/**
+ * Analytics Module - Chart.js Visualizations
+ * Handles all analytics charts and data visualization
+ */
+
+class AnalyticsManager {
+    constructor() {
+        this.charts = {};
+        this.chartConfigs = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e8e8e8'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#a0a0a0' },
+                    grid: { color: '#2d3748' }
+                },
+                y: {
+                    ticks: { color: '#a0a0a0' },
+                    grid: { color: '#2d3748' }
+                }
+            }
+        };
+    }
+
+    async loadAnalytics(repositoryId) {
+        try {
+            const response = await fetch(`http://localhost:8001/api/v1/analytics/${repositoryId}`);
+            const data = await response.json();
+            
+            if (data.charts) {
+                this.renderAllCharts(data.charts);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+            showToast('Failed to load analytics', 'error');
+        }
+    }
+
+    renderAllCharts(chartsData) {
+        // Destroy existing charts
+        Object.values(this.charts).forEach(chart => chart.destroy());
+        this.charts = {};
+
+        // Render each chart
+        if (chartsData.dependency_density) {
+            this.renderChart('dependencyChart', chartsData.dependency_density);
+        }
+        if (chartsData.language_distribution) {
+            this.renderChart('languageChart', chartsData.language_distribution);
+        }
+        if (chartsData.complexity_metrics) {
+            this.renderChart('complexityChart', chartsData.complexity_metrics);
+        }
+        if (chartsData.node_distribution) {
+            this.renderChart('nodeTypeChart', chartsData.node_distribution);
+        }
+        if (chartsData.centrality_analysis) {
+            this.renderChart('centralityChart', chartsData.centrality_analysis);
+        }
+        if (chartsData.graph_evolution) {
+            this.renderChart('evolutionChart', chartsData.graph_evolution);
+        }
+    }
+
+    renderChart(canvasId, chartData) {
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) {
+            console.warn(`Canvas ${canvasId} not found`);
+            return;
+        }
+
+        const config = {
+            type: chartData.type,
+            data: {
+                labels: chartData.labels,
+                datasets: chartData.datasets
+            },
+            options: this.getChartOptions(chartData.type)
+        };
+
+        this.charts[canvasId] = new Chart(ctx, config);
+    }
+
+    getChartOptions(chartType) {
+        const baseOptions = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e8e8e8',
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 52, 96, 0.9)',
+                    titleColor: '#3498db',
+                    bodyColor: '#e8e8e8',
+                    borderColor: '#3498db',
+                    borderWidth: 1
+                }
+            }
+        };
+
+        if (chartType === 'bar' || chartType === 'line' || chartType === 'horizontalBar') {
+            baseOptions.scales = {
+                x: {
+                    ticks: { 
+                        color: '#a0a0a0',
+                        font: { size: 10 }
+                    },
+                    grid: { 
+                        color: '#2d3748',
+                        display: chartType !== 'horizontalBar'
+                    }
+                },
+                y: {
+                    ticks: { 
+                        color: '#a0a0a0',
+                        font: { size: 10 }
+                    },
+                    grid: { 
+                        color: '#2d3748'
+                    }
+                }
+            };
+
+            if (chartType === 'horizontalBar') {
+                baseOptions.indexAxis = 'y';
+            }
+        }
+
+        return baseOptions;
+    }
+
+    createDependencyDensityChart(data) {
+        return {
+            type: 'bar',
+            title: 'Dependency Density',
+            labels: data.labels,
+            datasets: [{
+                label: 'Dependencies',
+                data: data.values,
+                backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                borderColor: 'rgba(52, 152, 219, 1)',
+                borderWidth: 1
+            }]
+        };
+    }
+
+    createLanguageDistributionChart(data) {
+        const colors = [
+            'rgba(52, 152, 219, 0.8)',
+            'rgba(46, 204, 113, 0.8)',
+            'rgba(243, 156, 18, 0.8)',
+            'rgba(231, 76, 60, 0.8)',
+            'rgba(155, 89, 182, 0.8)',
+            'rgba(52, 73, 94, 0.8)'
+        ];
+
+        return {
+            type: 'pie',
+            title: 'Language Distribution',
+            labels: data.labels,
+            datasets: [{
+                data: data.values,
+                backgroundColor: colors.slice(0, data.labels.length),
+                borderColor: '#0f3460',
+                borderWidth: 2
+            }]
+        };
+    }
+
+    createComplexityChart(data) {
+        return {
+            type: 'bar',
+            title: 'Repository Complexity',
+            labels: data.labels,
+            datasets: [
+                {
+                    label: 'Functions',
+                    data: data.functions,
+                    backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Classes',
+                    data: data.classes,
+                    backgroundColor: 'rgba(243, 156, 18, 0.6)',
+                    borderColor: 'rgba(243, 156, 18, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Imports',
+                    data: data.imports,
+                    backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }
+            ]
+        };
+    }
+
+    createTimelineChart(data) {
+        return {
+            type: 'line',
+            title: 'Parsing Timeline',
+            labels: data.timestamps,
+            datasets: [{
+                label: 'Files Processed',
+                data: data.values,
+                borderColor: 'rgba(46, 204, 113, 1)',
+                backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                fill: true,
+                tension: 0.4
+            }]
+        };
+    }
+
+    createCentralityChart(data) {
+        return {
+            type: 'horizontalBar',
+            title: 'Node Centrality',
+            labels: data.labels,
+            datasets: [{
+                label: 'Centrality Score',
+                data: data.values,
+                backgroundColor: 'rgba(155, 89, 182, 0.6)',
+                borderColor: 'rgba(155, 89, 182, 1)',
+                borderWidth: 1
+            }]
+        };
+    }
+
+    createEvolutionChart(data) {
+        return {
+            type: 'line',
+            title: 'Graph Evolution',
+            labels: data.stages,
+            datasets: [
+                {
+                    label: 'Nodes',
+                    data: data.nodes,
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'Edges',
+                    data: data.edges,
+                    borderColor: 'rgba(231, 76, 60, 1)',
+                    backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        };
+    }
+
+    destroyAllCharts() {
+        Object.values(this.charts).forEach(chart => {
+            if (chart) chart.destroy();
+        });
+        this.charts = {};
+    }
+
+    exportChartImage(chartId) {
+        const chart = this.charts[chartId];
+        if (chart) {
+            return chart.toBase64Image();
+        }
+        return null;
+    }
+
+    updateChart(chartId, newData) {
+        const chart = this.charts[chartId];
+        if (chart) {
+            chart.data = newData;
+            chart.update();
+        }
+    }
+}
+
+// Export for use in other modules
+window.AnalyticsManager = AnalyticsManager;
+
+// Made with Bob
+
+
+/**
+ * WebSocket Module - Real-time Graph Streaming
+ * Handles WebSocket connections for live graph updates
+ */
+
+class WebSocketManager {
+    constructor(graphVisualizer) {
+        this.graphVisualizer = graphVisualizer;
+        this.ws = null;
+        this.isConnected = false;
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 5;
+        this.reconnectDelay = 2000;
+    }
+
+    connect(repositoryId) {
+        const wsUrl = `ws://localhost:8001/api/v1/stream/graph/${repositoryId}`;
+        
+        try {
+            this.ws = new WebSocket(wsUrl);
+            this.setupEventHandlers();
+            showToast('Connecting to stream...', 'info');
+        } catch (error) {
+            console.error('WebSocket connection error:', error);
+            showToast('Failed to connect to stream', 'error');
+        }
+    }
+
+    setupEventHandlers() {
+        this.ws.onopen = () => {
+            this.isConnected = true;
+            this.reconnectAttempts = 0;
+            console.log('WebSocket connected');
+            showToast('Stream connected - receiving live updates', 'success');
+            showLoading('Streaming graph data...');
+        };
+
+        this.ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                this.handleMessage(data);
+            } catch (error) {
+                console.error('Error parsing WebSocket message:', error);
+            }
+        };
+
+        this.ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            showToast('Stream connection error', 'error');
+        };
+
+        this.ws.onclose = () => {
+            this.isConnected = false;
+            console.log('WebSocket disconnected');
+            hideLoading();
+            
+            if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                this.reconnectAttempts++;
+                console.log(`Reconnecting... Attempt ${this.reconnectAttempts}`);
+                setTimeout(() => this.reconnect(), this.reconnectDelay);
+            } else {
+                showToast('Stream disconnected', 'warning');
+            }
+        };
+    }
+
+    handleMessage(data) {
+        switch (data.type) {
+            case 'start':
+                this.handleStart(data.data);
+                break;
+            case 'node':
+                this.handleNode(data.data);
+                break;
+            case 'edge':
+                this.handleEdge(data.data);
+                break;
+            case 'complete':
+                this.handleComplete(data.data);
+                break;
+            case 'error':
+                this.handleError(data.message);
+                break;
+            default:
+                console.warn('Unknown message type:', data.type);
+        }
+    }
+
+    handleStart(data) {
+        console.log('Stream started:', data);
+        // Clear existing graph
+        if (this.graphVisualizer && this.graphVisualizer.cy) {
+            this.graphVisualizer.cy.elements().remove();
+        }
+    }
+
+    handleNode(nodeData) {
+        if (!this.graphVisualizer || !this.graphVisualizer.cy) return;
+
+        // Add node with animation
+        const node = this.graphVisualizer.cy.add({
+            group: 'nodes',
+            data: nodeData,
+            classes: nodeData.node_type
+        });
+
+        // Animate node appearance
+        node.style({
+            'opacity': 0,
+            'width': 10,
+            'height': 10
+        });
+
+        node.animate({
+            style: {
+                'opacity': 1,
+                'width': nodeData.node_type === 'file' ? 50 : 40,
+                'height': nodeData.node_type === 'file' ? 50 : 40
+            }
+        }, {
+            duration: 300,
+            easing: 'ease-out'
+        });
+
+        // Update stats
+        this.graphVisualizer.updateStats();
+    }
+
+    handleEdge(edgeData) {
+        if (!this.graphVisualizer || !this.graphVisualizer.cy) return;
+
+        // Check if source and target nodes exist
+        const sourceExists = this.graphVisualizer.cy.getElementById(edgeData.source).length > 0;
+        const targetExists = this.graphVisualizer.cy.getElementById(edgeData.target).length > 0;
+
+        if (sourceExists && targetExists) {
+            // Add edge with animation
+            const edge = this.graphVisualizer.cy.add({
+                group: 'edges',
+                data: {
+                    id: `${edgeData.source}->${edgeData.target}`,
+                    source: edgeData.source,
+                    target: edgeData.target,
+                    edge_type: edgeData.edge_type
+                },
+                classes: edgeData.edge_type
+            });
+
+            // Animate edge appearance
+            edge.style('opacity', 0);
+            edge.animate({
+                style: { 'opacity': 1 }
+            }, {
+                duration: 200
+            });
+
+            // Update stats
+            this.graphVisualizer.updateStats();
+        }
+    }
+
+    handleComplete(data) {
+        console.log('Stream complete:', data);
+        hideLoading();
+        showToast(`Graph loaded: ${data.total_nodes} nodes, ${data.total_edges} edges`, 'success');
+        
+        // Apply layout after all elements are added
+        if (this.graphVisualizer) {
+            setTimeout(() => {
+                this.graphVisualizer.applyLayout(this.graphVisualizer.currentLayout);
+            }, 500);
+        }
+        
+        this.disconnect();
+    }
+
+    handleError(message) {
+        console.error('Stream error:', message);
+        hideLoading();
+        showToast(`Stream error: ${message}`, 'error');
+        this.disconnect();
+    }
+
+    reconnect() {
+        if (this.ws) {
+            this.ws.close();
+        }
+        // Reconnection logic would go here
+        console.log('Reconnection not implemented in this version');
+    }
+
+    disconnect() {
+        if (this.ws) {
+            this.ws.close();
+            this.ws = null;
+        }
+        this.isConnected = false;
+    }
+
+    send(data) {
+        if (this.isConnected && this.ws) {
+            this.ws.send(JSON.stringify(data));
+        } else {
+            console.warn('WebSocket not connected');
+        }
+    }
+}
+
+// Export for use in other modules
+window.WebSocketManager = WebSocketManager;
+
+// Made with Bob
+
+
+/**
+ * Main Application Module
+ * Coordinates all components and handles user interactions
+ */
+
+// Global state
+const API_BASE_URL = 'http://localhost:8001';
+let graphVisualizer = null;
+let analyticsManager = null;
+let wsManager = null;
+let currentRepositoryId = 'sample-repo';
+
+// Initialize application
+document.addEventListener('DOMContentLoaded', () => {
+    initializeApp();
+    setupEventListeners();
+});
+
+function initializeApp() {
+    // Initialize graph visualizer
+    graphVisualizer = new GraphVisualizer('cy');
+    
+    // Initialize analytics manager
+    analyticsManager = new AnalyticsManager();
+    
+    // Initialize WebSocket manager
+    wsManager = new WebSocketManager(graphVisualizer);
+    
+    console.log('Application initialized');
+}
+
+function setupEventListeners() {
+    // Header controls
+    document.getElementById('uploadBtn').addEventListener('click', () => {
+        document.getElementById('fileInput').click();
+    });
+    
+    document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+    document.getElementById('loadGraphBtn').addEventListener('click', loadGraph);
+    document.getElementById('streamGraphBtn').addEventListener('click', streamGraph);
+    
+    // Graph controls
+    document.getElementById('layoutSelect').addEventListener('change', (e) => {
+        if (graphVisualizer) {
+            graphVisualizer.applyLayout(e.target.value);
+        }
+    });
+    
+    document.getElementById('fitGraphBtn').addEventListener('click', () => {
+        if (graphVisualizer) {
+            graphVisualizer.fitGraph();
+        }
+    });
+    
+    document.getElementById('resetZoomBtn').addEventListener('click', () => {
+        if (graphVisualizer) {
+            graphVisualizer.resetZoom();
+        }
+    });
+    
+    // Filters
+    document.getElementById('filterFiles').addEventListener('change', applyFilters);
+    document.getElementById('filterClasses').addEventListener('change', applyFilters);
+    document.getElementById('filterFunctions').addEventListener('change', applyFilters);
+    
+    // Search
+    document.getElementById('searchInput').addEventListener('input', handleSearch);
+    
+    // Node details close button
+    document.getElementById('closeDetails').addEventListener('click', () => {
+        graphVisualizer.hideNodeDetails();
+    });
+    
+    // Tab navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+    
+    // Comparison
+    document.getElementById('compareBtn').addEventListener('click', compareRepositories);
+    
+    // Repository ID input
+    document.getElementById('repositoryId').addEventListener('change', (e) => {
+        currentRepositoryId = e.target.value;
+    });
+}
+
+async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    showLoading('Uploading and processing repository...');
+    
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch(`${API_BASE_URL}/api/v1/upload/repository`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Upload failed');
+        }
+        
+        const data = await response.json();
+        
+        // Update repository ID
+        currentRepositoryId = data.repository_id;
+        document.getElementById('repositoryId').value = data.repository_id;
+        
+        // Load graph
+        if (data.graph) {
+            graphVisualizer.loadGraph(data.graph);
+            showToast(`Repository processed: ${data.files_count} files, ${data.dependencies_count} dependencies`, 'success');
+            
+            if (data.metrics) {
+                updateMetricsDisplay(data.metrics);
+            }
+        }
+    } catch (error) {
+        console.error('Error uploading repository:', error);
+        showToast('Failed to upload repository: ' + error.message, 'error');
+    } finally {
+        hideLoading();
+        event.target.value = ''; // Reset file input
+    }
+}
+
+async function loadGraph() {
+    const repositoryId = document.getElementById('repositoryId').value || currentRepositoryId;
+    
+    if (!repositoryId) {
+        showToast('Please upload a repository or enter a repository ID', 'warning');
+        return;
+    }
+    
+    showLoading('Loading graph data...');
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/graph/cytoscape/${repositoryId}`);
+        
+        if (!response.ok) {
+            throw new Error(`Repository not found. Please upload a repository first.`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.graph) {
+            currentRepositoryId = repositoryId;
+            graphVisualizer.loadGraph(data.graph);
+            showToast('Graph loaded successfully', 'success');
+            
+            // Update stats display
+            if (data.metrics) {
+                updateMetricsDisplay(data.metrics);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading graph:', error);
+        showToast('Failed to load graph: ' + error.message, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function streamGraph() {
+    const repositoryId = document.getElementById('repositoryId').value || currentRepositoryId;
+    
+    if (wsManager) {
+        wsManager.connect(repositoryId);
+    }
+}
+
+function applyFilters() {
+    const showFiles = document.getElementById('filterFiles').checked;
+    const showClasses = document.getElementById('filterClasses').checked;
+    const showFunctions = document.getElementById('filterFunctions').checked;
+    
+    const types = [];
+    if (showFiles) types.push('file');
+    if (showClasses) types.push('class');
+    if (showFunctions) types.push('function');
+    
+    if (graphVisualizer) {
+        graphVisualizer.filterByNodeType(types);
+    }
+}
+
+function handleSearch(e) {
+    const query = e.target.value.trim();
+    const resultsContainer = document.getElementById('searchResults');
+    
+    if (!query) {
+        resultsContainer.innerHTML = '';
+        if (graphVisualizer) {
+            graphVisualizer.clearHighlights();
+        }
+        return;
+    }
+    
+    if (graphVisualizer) {
+        const results = graphVisualizer.searchNodes(query);
+        displaySearchResults(results, resultsContainer);
+    }
+}
+
+function displaySearchResults(results, container) {
+    if (results.length === 0) {
+        container.innerHTML = '<p style="padding: 0.5rem; color: #a0a0a0;">No results found</p>';
+        return;
+    }
+    
+    container.innerHTML = results.map(result => `
+        <div class="search-result-item" onclick="focusOnNode('${result.node.id()}')">
+            <strong>${result.label}</strong>
+            <br>
+            <small style="color: #a0a0a0;">${result.type}</small>
+        </div>
+    `).join('');
+}
+
+function focusOnNode(nodeId) {
+    if (graphVisualizer) {
+        graphVisualizer.focusNode(nodeId);
+    }
+}
+
+function switchTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    
+    // Update tab panes
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.remove('active');
+    });
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    // Load data for specific tabs
+    if (tabName === 'analytics') {
+        loadAnalytics();
+    } else if (tabName === 'ai-insights') {
+        loadAIInsights();
+    }
+}
+
+async function loadAnalytics() {
+    const repositoryId = document.getElementById('repositoryId').value || currentRepositoryId;
+    
+    if (analyticsManager) {
+        await analyticsManager.loadAnalytics(repositoryId);
+    }
+}
+
+async function loadAIInsights() {
+    const repositoryId = document.getElementById('repositoryId').value || currentRepositoryId;
+    
+    try {
+        // Load knowledge graph insights
+        const kgResponse = await fetch(`${API_BASE_URL}/api/v1/graph/${repositoryId}/metrics`);
+        const kgData = await kgResponse.json();
+        displayKnowledgeGraph(kgData);
+        
+        // Load circular dependencies
+        const cyclesResponse = await fetch(`${API_BASE_URL}/api/v1/graph/${repositoryId}/cycles`);
+        const cyclesData = await cyclesResponse.json();
+        displayCircularDependencies(cyclesData);
+        
+        // Mock RAG pipeline and attention scores
+        displayRAGPipeline();
+        displayAttentionScores();
+        
+    } catch (error) {
+        console.error('Error loading AI insights:', error);
+        showToast('Failed to load AI insights', 'error');
+    }
+}
+
+function displayKnowledgeGraph(data) {
+    const container = document.getElementById('knowledgeGraph');
+    
+    let html = '<div class="insight-list">';
+    html += `<p><strong>Total Nodes:</strong> ${data.metrics?.node_count || 0}</p>`;
+    html += `<p><strong>Total Edges:</strong> ${data.metrics?.edge_count || 0}</p>`;
+    html += `<p><strong>Graph Density:</strong> ${data.metrics?.density?.toFixed(4) || 0}</p>`;
+    html += `<p><strong>Is DAG:</strong> ${data.metrics?.is_dag ? 'Yes' : 'No'}</p>`;
+    
+    if (data.metrics?.top_central_nodes) {
+        html += '<h4 style="margin-top: 1rem; color: #3498db;">Most Central Nodes:</h4>';
+        html += '<ul class="insight-list">';
+        data.metrics.top_central_nodes.slice(0, 5).forEach(node => {
+            html += `<li>${node.node} (${(node.centrality * 100).toFixed(2)}%)</li>`;
+        });
+        html += '</ul>';
+    }
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function displayCircularDependencies(data) {
+    const container = document.getElementById('circularDeps');
+    
+    let html = '<div class="insight-list">';
+    html += `<p><strong>Cycles Found:</strong> ${data.cycle_count || 0}</p>`;
+    html += `<p><strong>Has Cycles:</strong> ${data.has_cycles ? 'Yes ⚠️' : 'No ✓'}</p>`;
+    
+    if (data.cycles && data.cycles.length > 0) {
+        html += '<h4 style="margin-top: 1rem; color: #e74c3c;">Detected Cycles:</h4>';
+        html += '<ul class="insight-list">';
+        data.cycles.forEach((cycle, idx) => {
+            html += `<li>Cycle ${idx + 1}: ${cycle.join(' → ')}</li>`;
+        });
+        html += '</ul>';
+    }
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function displayRAGPipeline() {
+    const container = document.getElementById('ragPipeline');
+    
+    const stages = [
+        { name: 'Parsing', status: 'complete', icon: '✓' },
+        { name: 'Embedding', status: 'complete', icon: '✓' },
+        { name: 'Indexing', status: 'complete', icon: '✓' },
+        { name: 'Retrieval', status: 'ready', icon: '⚡' },
+        { name: 'Generation', status: 'ready', icon: '🤖' }
+    ];
+    
+    let html = '<div class="insight-list">';
+    stages.forEach(stage => {
+        html += `<li><strong>${stage.icon} ${stage.name}:</strong> ${stage.status}</li>`;
+    });
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function displayAttentionScores() {
+    const container = document.getElementById('attentionScores');
+    
+    const mockScores = [
+        { component: 'main.py', score: 0.92 },
+        { component: 'api_routes.py', score: 0.87 },
+        { component: 'database.py', score: 0.81 },
+        { component: 'utils.py', score: 0.65 },
+        { component: 'config.py', score: 0.58 }
+    ];
+    
+    let html = '<div class="insight-list"><ul class="insight-list">';
+    mockScores.forEach(item => {
+        const percentage = (item.score * 100).toFixed(0);
+        html += `<li><strong>${item.component}:</strong> ${percentage}% attention</li>`;
+    });
+    html += '</ul></div>';
+    
+    container.innerHTML = html;
+}
+
+async function compareRepositories() {
+    const repo1 = document.getElementById('repo1Input').value;
+    const repo2 = document.getElementById('repo2Input').value;
+    
+    if (!repo1 || !repo2) {
+        showToast('Please enter both repository IDs', 'warning');
+        return;
+    }
+    
+    showLoading('Comparing repositories...');
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/comparison/${repo1}/${repo2}`);
+        const data = await response.json();
+        
+        displayComparisonResults(data);
+        showToast('Comparison complete', 'success');
+    } catch (error) {
+        console.error('Error comparing repositories:', error);
+        showToast('Failed to compare repositories', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+function displayComparisonResults(data) {
+    // Display graphs
+    if (data.graph_1) {
+        const cy1 = cytoscape({
+            container: document.getElementById('cy1'),
+            elements: data.graph_1.elements,
+            style: graphVisualizer.cy.style().json(),
+            layout: { name: 'cose' }
+        });
+    }
+    
+    if (data.graph_2) {
+        const cy2 = cytoscape({
+            container: document.getElementById('cy2'),
+            elements: data.graph_2.elements,
+            style: graphVisualizer.cy.style().json(),
+            layout: { name: 'cose' }
+        });
+    }
+    
+    // Display metrics
+    const metricsContainer = document.getElementById('comparisonMetrics');
+    let html = '';
+    
+    if (data.repository_1) {
+        html += `
+            <div class="metric-card">
+                <h4>Repository 1 Nodes</h4>
+                <div class="value">${data.repository_1.nodes}</div>
+            </div>
+            <div class="metric-card">
+                <h4>Repository 2 Nodes</h4>
+                <div class="value">${data.repository_2.nodes}</div>
+            </div>
+            <div class="metric-card">
+                <h4>Node Difference</h4>
+                <div class="value">${data.differences?.node_diff || 0}</div>
+            </div>
+            <div class="metric-card">
+                <h4>Common Nodes</h4>
+                <div class="value">${data.common_nodes || 0}</div>
+            </div>
+        `;
+    }
+    
+    metricsContainer.innerHTML = html;
+}
+
+function updateMetricsDisplay(metrics) {
+    if (metrics.node_count !== undefined) {
+        document.getElementById('nodeCount').textContent = metrics.node_count;
+    }
+    if (metrics.edge_count !== undefined) {
+        document.getElementById('edgeCount').textContent = metrics.edge_count;
+    }
+    if (metrics.density !== undefined) {
+        document.getElementById('density').textContent = metrics.density.toFixed(4);
+    }
+}
+
+// Utility functions
+function showLoading(message = 'Loading...') {
+    const overlay = document.getElementById('loadingOverlay');
+    const text = overlay.querySelector('p');
+    if (text) text.textContent = message;
+    overlay.classList.remove('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Make functions globally available
+window.focusOnNode = focusOnNode;
+window.showToast = showToast;
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
+
+// Made with Bob
+
+    </script>
+</body>
+</html>

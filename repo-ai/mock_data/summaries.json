@@ -1,0 +1,31 @@
+{
+  "repository_id": "mock-repo-001",
+  "generated_at": "2026-05-16T00:00:00Z",
+  "items": [
+    {
+      "path": "modules/a",
+      "summary": "Core domain logic and validation rules.",
+      "symbols": ["validate", "DomainService"]
+    },
+    {
+      "path": "modules/b",
+      "summary": "HTTP handlers and routing layer.",
+      "symbols": ["Router", "register_routes"]
+    },
+    {
+      "path": "modules/c",
+      "summary": "Persistence adapters and data access.",
+      "symbols": ["Repository", "get_connection"]
+    },
+    {
+      "path": "shared/",
+      "summary": "Cross-cutting utilities: logging, config, errors.",
+      "symbols": ["load_config", "format_error"]
+    },
+    {
+      "path": "app/entry.py",
+      "summary": "Application bootstrap and dependency wiring.",
+      "symbols": ["main"]
+    }
+  ]
+}

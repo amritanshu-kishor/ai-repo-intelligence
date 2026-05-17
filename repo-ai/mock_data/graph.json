@@ -1,0 +1,19 @@
+{
+  "repository_id": "mock-repo-001",
+  "format": "cytoscape-ready",
+  "nodes": [
+    {"data": {"id": "mod_a", "label": "modules/a", "type": "module"}},
+    {"data": {"id": "mod_b", "label": "modules/b", "type": "module"}},
+    {"data": {"id": "mod_c", "label": "modules/c", "type": "module"}},
+    {"data": {"id": "shared", "label": "shared/", "type": "module"}},
+    {"data": {"id": "entry", "label": "app/entry.py", "type": "entrypoint"}}
+  ],
+  "edges": [
+    {"data": {"id": "e1", "source": "entry", "target": "mod_b", "relation": "imports"}},
+    {"data": {"id": "e2", "source": "mod_b", "target": "mod_a", "relation": "imports"}},
+    {"data": {"id": "e3", "source": "mod_b", "target": "mod_c", "relation": "imports"}},
+    {"data": {"id": "e4", "source": "mod_a", "target": "shared", "relation": "imports"}},
+    {"data": {"id": "e5", "source": "mod_c", "target": "shared", "relation": "imports"}},
+    {"data": {"id": "e6", "source": "shared", "target": "mod_a", "relation": "imports"}}
+  ]
+}

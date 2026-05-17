@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Intelligence Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Cytoscape.js for graph visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>Repository Intelligence</h1>
+                    <p class="subtitle">AI-Powered Dependency Analysis</p>
+                </div>
+                <div class="header-right">
+                    <div class="status-indicators">
+                        <span id="status-badge" class="status-dot"></span>
+                        <span class="status-text">System Ready</span>
+                    </div>
+                </div>
+            </div>
+            <div class="repo-status-bar" id="repo-status-bar" style="display:none;">
+                <span class="repo-icon">📁</span>
+                <span id="repo-badge" class="repo-name">No repository</span>
+                <span class="repo-stats" id="repo-stats"></span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="card upload-section">
+                <div class="card-header">
+                    <h2>Upload Repository</h2>
+                    <p class="card-subtitle">Upload a ZIP file to analyze dependencies</p>
+                </div>
+                <div class="card-body">
+                    <input type="file" id="zipInput" accept=".zip" style="display:none">
+                    <div class="upload-zone" id="upload-zone">
+                        <div class="upload-icon">📦</div>
+                        <h3>Drag & drop ZIP file here</h3>
+                        <p>or click to browse</p>
+                        <button id="uploadBtn" class="btn btn-primary">
+                            Choose File
+                        </button>
+                    </div>
+                    <span id="upload-status" class="upload-status"></span>
+                    <div id="repo-info" class="repo-info" style="display:none;">
+                        <div class="repo-info-header">
+                            <h3>Repository Loaded</h3>
+                            <span class="repo-badge">Active</span>
+                        </div>
+                        <div class="repo-info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Name</span>
+                                <span class="info-value" id="repo-name"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Files</span>
+                                <span class="info-value" id="file-count"></span>
+                            </div>
+                        </div>
+                        <div id="file-list" class="file-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Query Section -->
+            <section class="card query-section">
+                <div class="card-header">
+                    <h2>AI Analysis</h2>
+                    <p class="card-subtitle">Ask questions about your repository</p>
+                </div>
+                <div class="card-body">
+                    <div class="query-input-wrapper">
+                        <input
+                            type="text"
+                            id="queryInput"
+                            placeholder="What breaks if auth.py changes?"
+                            class="query-input"
+                        >
+                        <button id="analyzeBtn" class="btn btn-analyze">
+                            Analyze
+                        </button>
+                    </div>
+                    <div class="query-examples">
+                        <span class="examples-label">Quick queries:</span>
+                        <button class="example-btn" data-query="What breaks if auth.py changes?">Impact Analysis</button>
+                        <button class="example-btn" data-query="Show me the dependency chain for database.py">Dependency Chain</button>
+                        <button class="example-btn" data-query="Are there any circular dependencies?">Circular Deps</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Response Section -->
+            <section class="card response-section">
+                <div class="card-header">
+                    <h2>Intelligence Output</h2>
+                    <p class="card-subtitle">AI-powered repository analysis</p>
+                </div>
+                <div class="card-body">
+                    <div id="loading" class="loading" style="display:none;">
+                        <div class="spinner"></div>
+                        <p>Analyzing repository...</p>
+                    </div>
+                    <div id="response-output" class="response-output">
+                        <div class="empty-state">
+                            <div class="empty-icon">🤖</div>
+                            <p>Upload a repository and ask a question to see AI analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Visual Graph Section -->
+            <section class="card graph-section">
+                <div class="card-header">
+                    <div class="header-left">
+                        <h2>Dependency Graph</h2>
+                        <p class="card-subtitle">Interactive visualization</p>
+                    </div>
+                    <div class="graph-controls">
+                        <button id="fitGraphBtn" class="btn btn-secondary btn-sm">Fit Screen</button>
+                        <button id="resetGraphBtn" class="btn btn-secondary btn-sm">Reset</button>
+                        <span id="graph-stats" class="graph-stats"></span>
+                    </div>
+                </div>
+                <div class="card-body graph-body">
+                    <div id="cy" class="cytoscape-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">🕸️</div>
+                            <p>Upload a repository to visualize dependencies</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Graph Debug Section -->
+            <section class="card debug-section">
+                <div class="card-header">
+                    <h2>Analysis Console</h2>
+                    <p class="card-subtitle">Graph reasoning and debug output</p>
+                </div>
+                <div class="card-body">
+                    <div id="graph-output" class="graph-output">
+                        <div class="empty-state">
+                            <div class="empty-icon">🔍</div>
+                            <p>Analysis details will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

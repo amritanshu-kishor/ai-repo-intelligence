@@ -1,0 +1,18 @@
+{
+  "repository_id": "mock-repo-001",
+  "external": [
+    {"name": "framework-core", "version": "1.0.0", "type": "runtime"},
+    {"name": "data-orm", "version": "2.0.0", "type": "runtime"},
+    {"name": "test-runner", "version": "8.0.0", "type": "dev"}
+  ],
+  "internal": [
+    {"from": "app/entry.py", "to": "modules/b", "kind": "import"},
+    {"from": "modules/b", "to": "modules/a", "kind": "import"},
+    {"from": "modules/b", "to": "modules/c", "kind": "import"},
+    {"from": "modules/a", "to": "shared/", "kind": "import"},
+    {"from": "modules/c", "to": "shared/", "kind": "import"}
+  ],
+  "risk_flags": [
+    {"module": "modules/a", "issue": "shared utility coupling", "severity": "low"}
+  ]
+}
