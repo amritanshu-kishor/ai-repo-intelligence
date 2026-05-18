@@ -2,6 +2,48 @@
 
 This project uses a FastAPI-based "parser" service (in `parser-workflow`) and a Flask-based main app (in `repo-ai`). Run both services in parallel (two terminals) during development.
 
+## LLM Options & Access
+The project now includes additional LLM provider options exposed via the UI/configuration: Grok, Gemini, and other compatible providers. During a recent hackathon `bob` access was available and used for testing, but that access is temporary and not guaranteed long-term — configure and provide your own preferred provider credentials (see `repo-ai/config.py` or environment variables).
+
+## Refined local run order
+For a smooth local startup, follow this order:
+
+1. Run any setup/install scripts first (optional):
+
+```bash
+# from repo root (if provided)
+# INSTALL_ALL_DEPENDENCIES.bat
+# or follow the Prerequisites section to install requirements
+```
+
+2. Start helper/background scripts that the parser may rely on (one-off):
+
+```bash
+cd parser-workflow
+python run_server.py   # prints API/docs URL and picks a free port if needed
+```
+
+3. In two separate terminals start the backends (parser + repo-ai):
+
+- Terminal A — Parser (FastAPI / Uvicorn):
+
+```bash
+cd parser-workflow
+python run_server.py
+# or: uvicorn main:app --reload --host 127.0.0.1 --port 8001
+```
+
+- Terminal B — Main app (Flask):
+
+```bash
+cd repo-ai
+python app.py
+```
+
+4. Open the UI at `http://localhost:5000` (or the printed host/port) and proceed to upload a repository and use the configured LLM provider.
+
+Notes: ensure the parser backend URL in `repo-ai` matches the parser port (the helper script may choose a different free port if the default is busy).
+
 ## Prerequisites
 - Python 3.10+ (Windows-compatible)
 - Install dependencies (from the repo root or per-subproject):
