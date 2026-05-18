@@ -3,169 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repository Intelligence Platform</title>
+    <title>Repository Intelligence</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Cytoscape.js for graph visualization -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="header-left">
-                    <h1>Repository Intelligence</h1>
-                    <p class="subtitle">AI-Powered Dependency Analysis</p>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                 </div>
-                <div class="header-right">
-                    <div class="status-indicators">
-                        <span id="status-badge" class="status-dot"></span>
-                        <span class="status-text">System Ready</span>
-                    </div>
+                <div>
+                    <h1>Repo Intelligence</h1>
+                    <p class="brand-tag">Dependency analysis</p>
                 </div>
             </div>
-            <div class="repo-status-bar" id="repo-status-bar" style="display:none;">
-                <span class="repo-icon">📁</span>
-                <span id="repo-badge" class="repo-name">No repository</span>
-                <span class="repo-stats" id="repo-stats"></span>
-            </div>
-        </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Upload Section -->
-            <section class="card upload-section">
-                <div class="card-header">
-                    <h2>Upload Repository</h2>
-                    <p class="card-subtitle">Upload a ZIP file to analyze dependencies</p>
+            <section class="panel panel-upload">
+                <div class="panel-head">
+                    <h2>Upload</h2>
+                    <span class="panel-hint">ZIP archive</span>
                 </div>
-                <div class="card-body">
-                    <input type="file" id="zipInput" accept=".zip" style="display:none">
+                <div class="panel-body">
+                    <input type="file" id="zipInput" accept=".zip" hidden>
                     <div class="upload-zone" id="upload-zone">
-                        <div class="upload-icon">📦</div>
-                        <h3>Drag & drop ZIP file here</h3>
-                        <p>or click to browse</p>
-                        <button id="uploadBtn" class="btn btn-primary">
-                            Choose File
-                        </button>
+                        <div class="upload-icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                        </div>
+                        <p class="upload-title">Drop ZIP here</p>
+                        <p class="upload-sub">or browse files</p>
+                        <button type="button" id="uploadBtn" class="btn btn-primary">Choose file</button>
                     </div>
-                    <span id="upload-status" class="upload-status"></span>
-                    <div id="repo-info" class="repo-info" style="display:none;">
-                        <div class="repo-info-header">
-                            <h3>Repository Loaded</h3>
-                            <span class="repo-badge">Active</span>
+                    <p id="upload-status" class="upload-status" role="status"></p>
+                    <div id="repo-info" class="repo-info" hidden>
+                        <div class="repo-info-head">
+                            <span class="chip chip-success">Loaded</span>
                         </div>
-                        <div class="repo-info-grid">
-                            <div class="info-item">
-                                <span class="info-label">Name</span>
-                                <span class="info-value" id="repo-name"></span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Files</span>
-                                <span class="info-value" id="file-count"></span>
-                            </div>
-                        </div>
+                        <dl class="repo-meta">
+                            <div><dt>Name</dt><dd id="repo-name">—</dd></div>
+                            <div><dt>Files</dt><dd id="file-count">—</dd></div>
+                        </dl>
                         <div id="file-list" class="file-list"></div>
                     </div>
                 </div>
             </section>
 
-            <!-- Query Section -->
-            <section class="card query-section">
-                <div class="card-header">
-                    <h2>AI Analysis</h2>
-                    <p class="card-subtitle">Ask questions about your repository</p>
+            <section class="panel panel-query">
+                <div class="panel-head">
+                    <h2>Ask AI</h2>
+                    <span class="panel-hint">Natural language</span>
                 </div>
-                <div class="card-body">
+                <div class="panel-body">
                     <div class="query-input-wrapper">
-                        <input
-                            type="text"
+                        <textarea
                             id="queryInput"
+                            rows="3"
                             placeholder="What breaks if auth.py changes?"
                             class="query-input"
-                        >
-                        <button id="analyzeBtn" class="btn btn-analyze">
-                            Analyze
+                        ></textarea>
+                        <button type="button" id="analyzeBtn" class="btn btn-analyze" disabled>
+                            <span>Analyze</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                         </button>
                     </div>
                     <div class="query-examples">
-                        <span class="examples-label">Quick queries:</span>
-                        <button class="example-btn" data-query="What breaks if auth.py changes?">Impact Analysis</button>
-                        <button class="example-btn" data-query="Show me the dependency chain for database.py">Dependency Chain</button>
-                        <button class="example-btn" data-query="Are there any circular dependencies?">Circular Deps</button>
+                        <span class="examples-label">Quick</span>
+                        <button type="button" class="example-btn" data-query="What breaks if auth.py changes?">Impact</button>
+                        <button type="button" class="example-btn" data-query="Show me the dependency chain for database.py">Chain</button>
+                        <button type="button" class="example-btn" data-query="Are there any circular dependencies?">Cycles</button>
                     </div>
                 </div>
             </section>
 
-            <!-- Response Section -->
-            <section class="card response-section">
-                <div class="card-header">
-                    <h2>Intelligence Output</h2>
-                    <p class="card-subtitle">AI-powered repository analysis</p>
+            <div class="sidebar-footer">
+                <div class="status-pill">
+                    <span id="status-badge" class="status-dot"></span>
+                    <span class="status-text">Connecting…</span>
                 </div>
-                <div class="card-body">
-                    <div id="loading" class="loading" style="display:none;">
-                        <div class="spinner"></div>
-                        <p>Analyzing repository...</p>
-                    </div>
-                    <div id="response-output" class="response-output">
-                        <div class="empty-state">
-                            <div class="empty-icon">🤖</div>
-                            <p>Upload a repository and ask a question to see AI analysis</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            </div>
+        </aside>
 
-            <!-- Visual Graph Section -->
-            <section class="card graph-section">
-                <div class="card-header">
-                    <div class="header-left">
-                        <h2>Dependency Graph</h2>
-                        <p class="card-subtitle">Interactive visualization</p>
-                    </div>
-                    <div class="graph-controls">
-                        <button id="fitGraphBtn" class="btn btn-secondary btn-sm">Fit Screen</button>
-                        <button id="resetGraphBtn" class="btn btn-secondary btn-sm">Reset</button>
-                        <label class="graph-toggle" title="Show only file-level imports">
-                            <input type="checkbox" id="filesOnlyToggle" checked>
-                            Files only
-                        </label>
-                        <span id="graph-stats" class="graph-stats"></span>
+        <main class="workspace">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h2 class="page-title">Analysis workspace</h2>
+                    <div class="repo-status-bar" id="repo-status-bar" hidden>
+                        <svg class="repo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+                        <span id="repo-badge" class="repo-name">No repository</span>
+                        <span class="repo-stats" id="repo-stats"></span>
                     </div>
                 </div>
-                <div class="card-body graph-body">
-                    <div class="graph-legend-bar">
-                        <span class="legend-item"><span class="legend-swatch file"></span> File</span>
-                        <span class="legend-item"><span class="legend-swatch entry"></span> Entry</span>
-                        <span class="legend-item"><span class="legend-swatch edge"></span> Import</span>
-                    </div>
-                    <div id="cy" class="cytoscape-container">
-                        <div class="empty-state">
-                            <div class="empty-icon">🕸️</div>
-                            <p>Upload a repository to visualize dependencies</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            </header>
 
-            <!-- Graph Debug Section -->
-            <section class="card debug-section">
-                <div class="card-header">
-                    <h2>Analysis Console</h2>
-                    <p class="card-subtitle">Graph reasoning and debug output</p>
-                </div>
-                <div class="card-body">
-                    <div id="graph-output" class="graph-output">
-                        <div class="empty-state">
-                            <div class="empty-icon">🔍</div>
-                            <p>Analysis details will appear here</p>
+            <div class="dashboard-grid">
+                <section class="panel panel-intel card response-section">
+                    <div class="panel-head panel-head-row">
+                        <div>
+                            <h2>Intelligence</h2>
+                            <p class="panel-hint">AI-powered insights</p>
                         </div>
                     </div>
-                </div>
+                    <div class="panel-body card-body">
+                        <div id="loading" class="loading" hidden>
+                            <div class="spinner"></div>
+                            <p>Analyzing repository…</p>
+                        </div>
+                        <div id="response-output" class="response-output">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 014 4c0 1.95-1.4 3.58-3.25 3.93L12 22l-1.75-12.07A4.001 4.001 0 0112 2z"/></svg>
+                                </div>
+                                <p>Upload a repo and run a query to see analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel panel-graph card graph-section">
+                    <div class="panel-head panel-head-row">
+                        <div>
+                            <h2>Dependency graph</h2>
+                            <p class="panel-hint">Interactive map</p>
+                        </div>
+                        <div class="graph-controls">
+                            <button type="button" id="fitGraphBtn" class="btn btn-ghost btn-sm">Fit</button>
+                            <button type="button" id="resetGraphBtn" class="btn btn-ghost btn-sm">Reset</button>
+                            <label class="graph-toggle" title="File-level nodes only">
+                                <input type="checkbox" id="filesOnlyToggle" checked>
+                                <span>Files only</span>
+                            </label>
+                            <span id="graph-stats" class="graph-stats"></span>
+                        </div>
+                    </div>
+                    <div class="panel-body graph-body card-body">
+                        <div class="graph-legend-bar">
+                            <span class="legend-item"><span class="legend-swatch file"></span>File</span>
+                            <span class="legend-item"><span class="legend-swatch entry"></span>Entry</span>
+                            <span class="legend-item"><span class="legend-swatch edge"></span>Import</span>
+                        </div>
+                        <div id="cy" class="cytoscape-container">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                                </div>
+                                <p>Graph appears after upload</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="panel panel-console card debug-section">
+                <details class="console-details" open>
+                    <summary class="panel-head panel-head-row console-summary">
+                        <div>
+                            <h2>Analysis console</h2>
+                            <p class="panel-hint">Graph reasoning & debug</p>
+                        </div>
+                        <span class="console-chevron" aria-hidden="true"></span>
+                    </summary>
+                    <div class="panel-body card-body">
+                        <div id="graph-output" class="graph-output">
+                            <div class="empty-state empty-state-compact">
+                                <p>Traversal and metrics show here after analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </details>
             </section>
         </main>
     </div>

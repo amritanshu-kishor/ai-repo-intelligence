@@ -4,6 +4,7 @@ const API_BASE = 'http://localhost:5000/api';
 
 // DOM Elements
 const uploadBtn = document.getElementById('uploadBtn');
+const uploadZone = document.getElementById('upload-zone');
 const zipInput = document.getElementById('zipInput');
 const uploadStatus = document.getElementById('upload-status');
 const repoInfo = document.getElementById('repo-info');
@@ -11,7 +12,9 @@ const repoName = document.getElementById('repo-name');
 const fileCount = document.getElementById('file-count');
 const fileList = document.getElementById('file-list');
 const statusBadge = document.getElementById('status-badge');
+const statusText = document.querySelector('.status-text');
 const repoBadge = document.getElementById('repo-badge');
+const repoStatusBar = document.getElementById('repo-status-bar');
 
 const queryInput = document.getElementById('queryInput');
 const analyzeBtn = document.getElementById('analyzeBtn');
@@ -36,11 +39,27 @@ const filesOnlyToggle = document.getElementById('filesOnlyToggle');
 checkHealth();
 
 // Event Listeners
-uploadBtn.addEventListener('click', () => zipInput.click());
+uploadBtn.addEventListener('click', (e) => { e.stopPropagation(); zipInput.click(); });
+if (uploadZone) {
+    uploadZone.addEventListener('click', () => zipInput.click());
+    uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            zipInput.files = e.dataTransfer.files;
+            handleFileUpload({ target: zipInput });
+        }
+    });
+}
 zipInput.addEventListener('change', handleFileUpload);
 analyzeBtn.addEventListener('click', handleQuery);
-queryInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleQuery();
+queryInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleQuery();
+    }
 });
 
 exampleBtns.forEach(btn => {
@@ -58,20 +77,17 @@ async function checkHealth() {
         
         if (data.status === 'ready') {
             const llm = data.llm_configured ? (data.llm_provider || 'llm') : 'no API key';
-            statusBadge.textContent = data.llm_configured ? 'Ready' : 'LLM key missing';
-            statusBadge.className = data.llm_configured ? 'badge badge-ready' : 'badge badge-error';
+            setStatus(data.llm_configured ? 'ready' : 'error', data.llm_configured ? 'System ready' : 'LLM key missing');
             if (!data.llm_configured) {
                 console.warn(`LLM not configured (${llm}). Edit repo-ai/.env and restart app.py`);
             }
         }
         
         if (data.active_repository && data.active_repository !== 'none') {
-            repoBadge.textContent = `Repository: ${data.active_repository}`;
-            repoBadge.className = 'badge badge-info';
+            showRepoBar(data.active_repository);
         }
     } catch (error) {
-        statusBadge.textContent = 'API Offline';
-        statusBadge.className = 'badge badge-error';
+        setStatus('error', 'API offline');
         console.error('Health check failed:', error);
     }
 }
@@ -81,7 +97,8 @@ async function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
-    uploadStatus.textContent = 'Uploading...';
+    uploadStatus.textContent = 'Uploading…';
+    uploadStatus.className = 'upload-status';
     uploadBtn.disabled = true;
     
     const formData = new FormData();
@@ -96,18 +113,17 @@ async function handleFileUpload(event) {
         const data = await response.json();
         
         if (data.success) {
-            uploadStatus.textContent = '✓ Upload successful';
-            uploadStatus.style.color = '#3fb950';
+            uploadStatus.textContent = 'Upload successful';
+            uploadStatus.className = 'upload-status ok';
             
-            // Update repository info
             repoName.textContent = data.repository;
             fileCount.textContent = data.file_count;
-            repoBadge.textContent = `Repository: ${data.repository}`;
-            repoBadge.className = 'badge badge-info';
+            showRepoBar(data.repository);
+            const statsEl = document.getElementById('repo-stats');
+            if (statsEl) statsEl.textContent = `${data.file_count} files`;
             
-            // Display files
-            fileList.innerHTML = data.files.map(f => `<div>📄 ${f}</div>`).join('');
-            repoInfo.style.display = 'block';
+            fileList.innerHTML = data.files.map(f => `<div>${escapeHtml(f)}</div>`).join('');
+            repoInfo.hidden = false;
             
             // Enable query
             queryInput.disabled = false;
@@ -116,12 +132,12 @@ async function handleFileUpload(event) {
             // Load and render graph
             loadRepositoryGraph(data.repository);
         } else {
-            uploadStatus.textContent = `✗ Error: ${data.error}`;
-            uploadStatus.style.color = '#f85149';
+            uploadStatus.textContent = `Error: ${data.error}`;
+            uploadStatus.className = 'upload-status err';
         }
     } catch (error) {
-        uploadStatus.textContent = `✗ Upload failed: ${error.message}`;
-        uploadStatus.style.color = '#f85149';
+        uploadStatus.textContent = `Upload failed: ${error.message}`;
+        uploadStatus.className = 'upload-status err';
         console.error('Upload error:', error);
     } finally {
         uploadBtn.disabled = false;
@@ -137,7 +153,7 @@ async function handleQuery() {
     }
     
     // Show loading
-    loading.style.display = 'block';
+    loading.hidden = false;
     responseOutput.innerHTML = '';
     graphOutput.innerHTML = '';
     analyzeBtn.disabled = true;
@@ -160,15 +176,25 @@ async function handleQuery() {
                 highlightAffectedNodes(data.result.intelligence.affected_files);
             }
         } else {
-            responseOutput.innerHTML = `<div class="placeholder" style="color:#f85149;">Error: ${data.error}</div>`;
+            responseOutput.innerHTML = `<div class="msg-error">Error: ${escapeHtml(data.error)}</div>`;
         }
     } catch (error) {
-        responseOutput.innerHTML = `<div class="placeholder" style="color:#f85149;">Request failed: ${error.message}</div>`;
+        responseOutput.innerHTML = `<div class="msg-error">Request failed: ${escapeHtml(error.message)}</div>`;
         console.error('Query error:', error);
     } finally {
-        loading.style.display = 'none';
+        loading.hidden = true;
         analyzeBtn.disabled = false;
     }
+}
+
+function setStatus(kind, label) {
+    if (statusBadge) statusBadge.className = `status-dot ${kind}`;
+    if (statusText) statusText.textContent = label;
+}
+
+function showRepoBar(name) {
+    if (repoBadge) repoBadge.textContent = name;
+    if (repoStatusBar) repoStatusBar.hidden = false;
 }
 
 // Display Response
@@ -193,7 +219,7 @@ function displayResponse(result) {
             <div class="response-section-title">📂 Affected Files</div>
             <ul class="response-list">
                 ${intelligence.affected_files.map(f => 
-                    `<li><strong>${f.path || f.id}</strong> <span style="color:#8b949e;">(${f.relation})</span></li>`
+                    `<li><strong>${escapeHtml(f.path || f.id)}</strong> <span class="relation-tag">(${escapeHtml(f.relation || '')})</span></li>`
                 ).join('')}
             </ul>
         `;
@@ -389,15 +415,15 @@ function renderGraph(graphData) {
                     'shape': 'round-rectangle',
                     'background-color': '#4f46e5',
                     'label': 'data(label)',
-                    'color': '#f3f4f6',
+                    'color': '#ffffff',
                     'text-valign': 'center',
                     'text-halign': 'center',
                     'text-wrap': 'ellipsis',
                     'text-max-width': '90px',
                     'font-size': '10px',
                     'font-weight': '600',
-                    'text-outline-color': '#0a0e1a',
-                    'text-outline-width': 2,
+                    'text-outline-color': '#1e293b',
+                    'text-outline-width': 1,
                     'width': 'label',
                     'height': 'label',
                     'padding': '10px',
@@ -513,11 +539,7 @@ function renderGraph(graphData) {
     cy.on('mouseout', 'node', function(evt) {
         const node = evt.target;
         if (!node.hasClass('highlighted') && !node.hasClass('focus')) {
-            node.style({
-                'border-width': '3px',
-                'border-color': '#8b5cf6',
-                'background-color': '#6366f1'
-            });
+            node.removeStyle();
         }
         document.body.style.cursor = 'default';
     });
@@ -538,12 +560,7 @@ function renderGraph(graphData) {
     cy.on('mouseout', 'edge', function(evt) {
         const edge = evt.target;
         if (!edge.hasClass('highlighted')) {
-            edge.style({
-                'width': 2,
-                'opacity': 0.6,
-                'line-color': '#374151',
-                'target-arrow-color': '#374151'
-            });
+            edge.removeStyle();
         }
     });
     
