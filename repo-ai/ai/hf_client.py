@@ -14,7 +14,7 @@ from requests.exceptions import JSONDecodeError
 from ai.contracts import LLMResult, PromptResult
 from ai.mock_provider import MockProvider
 from ai.provider_base import AIProvider, wrap_llm_output
-from config import HF_API_TOKEN, HF_INFERENCE_URL, HF_MODEL
+from config import HF_API_TOKEN, HF_INFERENCE_URL, HF_MODEL, LLM_MAX_TOKENS, LLM_SYSTEM_PROMPT, LLM_TEMPERATURE
 
 
 class HuggingFaceProvider(AIProvider):
@@ -40,10 +40,16 @@ class HuggingFaceProvider(AIProvider):
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
         }
+        messages: list[dict[str, str]] = []
+        if LLM_SYSTEM_PROMPT:
+            messages.append({"role": "system", "content": LLM_SYSTEM_PROMPT})
+        messages.append({"role": "user", "content": prompt.get("text", "")})
+
         payload = {
             "model": self.model,
-            "messages": [{"role": "user", "content": prompt.get("text", "")}],
-            "max_tokens": kwargs.get("max_tokens", 512),
+            "messages": messages,
+            "max_tokens": kwargs.get("max_tokens", LLM_MAX_TOKENS),
+            "temperature": kwargs.get("temperature", LLM_TEMPERATURE),
         }
 
         response = requests.post(

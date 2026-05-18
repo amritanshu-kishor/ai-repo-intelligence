@@ -29,6 +29,8 @@ const exampleBtns = document.querySelectorAll('.example-btn');
 
 // Cytoscape instance
 let cy = null;
+let lastGraphData = null;
+const filesOnlyToggle = document.getElementById('filesOnlyToggle');
 
 // Initialize
 checkHealth();
@@ -55,8 +57,12 @@ async function checkHealth() {
         const data = await response.json();
         
         if (data.status === 'ready') {
-            statusBadge.textContent = 'Ready';
-            statusBadge.className = 'badge badge-ready';
+            const llm = data.llm_configured ? (data.llm_provider || 'llm') : 'no API key';
+            statusBadge.textContent = data.llm_configured ? 'Ready' : 'LLM key missing';
+            statusBadge.className = data.llm_configured ? 'badge badge-ready' : 'badge badge-error';
+            if (!data.llm_configured) {
+                console.warn(`LLM not configured (${llm}). Edit repo-ai/.env and restart app.py`);
+            }
         }
         
         if (data.active_repository && data.active_repository !== 'none') {
@@ -176,8 +182,8 @@ function displayResponse(result) {
     // Summary
     if (intelligence.summary) {
         html += `
-            <div class="response-section-title">📝 Explanation</div>
-            <div class="response-text">${escapeHtml(intelligence.summary)}</div>
+            <div class="response-section-title">Analysis</div>
+            <div class="response-text response-markdown">${formatMarkdown(intelligence.summary)}</div>
         `;
     }
     
@@ -293,6 +299,7 @@ async function loadRepositoryGraph(repositoryId) {
         const data = await response.json();
         
         if (data.success && data.graph) {
+            lastGraphData = data.graph;
             renderGraph(data.graph);
         }
     } catch (error) {
@@ -300,31 +307,78 @@ async function loadRepositoryGraph(repositoryId) {
     }
 }
 
+function basename(path) {
+    if (!path) return '';
+    return String(path).replace(/\\/g, '/').split('/').pop();
+}
+
+function normalizeElements(graphData) {
+    let elements = [];
+    if (graphData.elements && graphData.elements.length) {
+        elements = graphData.elements.map(el => {
+            if (el.data && (el.data.id || el.data.source)) return el;
+            return { data: el };
+        });
+    } else {
+        const nodes = graphData.nodes || [];
+        const edges = graphData.edges || [];
+        nodes.forEach(n => {
+            const data = n.data || n;
+            elements.push({ data: data, classes: n.classes || data.node_type || '' });
+        });
+        edges.forEach(e => {
+            const data = e.data || e;
+            elements.push({ data: data, classes: e.classes || data.edge_type || '' });
+        });
+    }
+    return elements;
+}
+
+function filterFileLevelElements(elements) {
+    const fileTypes = new Set(['file', 'entrypoint', 'module', 'external']);
+    const nodeIds = new Set();
+    elements.forEach(el => {
+        const d = el.data;
+        if (!d.source) {
+            const t = (d.node_type || d.type || 'file').toLowerCase();
+            if (fileTypes.has(t) || !d.node_type) nodeIds.add(d.id);
+        }
+    });
+    const filtered = elements.filter(el => {
+        const d = el.data;
+        if (!d.source) return nodeIds.has(d.id);
+        return nodeIds.has(d.source) && nodeIds.has(d.target);
+    });
+    return filtered.length ? filtered : elements;
+}
+
 // Render Cytoscape Graph
 function renderGraph(graphData) {
     const container = document.getElementById('cy');
-    container.innerHTML = ''; // Clear placeholder
-    
-    // Extract nodes and edges from graph data
-    let elements = [];
-    
-    if (graphData.elements) {
-        // Format 1: Cytoscape elements array
-        elements = graphData.elements;
-    } else if (graphData.nodes && graphData.edges) {
-        // Format 2: Separate nodes and edges
-        elements = [
-            ...graphData.nodes.map(n => ({ data: n })),
-            ...graphData.edges.map(e => ({ data: e }))
-        ];
+    container.innerHTML = '';
+
+    let elements = normalizeElements(graphData);
+    if (filesOnlyToggle && filesOnlyToggle.checked) {
+        elements = filterFileLevelElements(elements);
     }
-    
+
+    elements = elements.map(el => {
+        const d = { ...el.data };
+        if (!d.source) {
+            const path = d.full_path || d.tooltip || d.id || '';
+            d.label = d.label || basename(path) || d.id;
+            d.shortLabel = basename(d.label) || d.label;
+        } else {
+            d.label = d.label || d.relation || d.relationship || 'imports';
+        }
+        return { ...el, data: d };
+    });
+
     if (elements.length === 0) {
         container.innerHTML = '<p class="placeholder">No graph data available</p>';
         return;
     }
-    
-    // Initialize Cytoscape with premium styling
+
     cy = cytoscape({
         container: container,
         elements: elements,
@@ -332,88 +386,100 @@ function renderGraph(graphData) {
             {
                 selector: 'node',
                 style: {
-                    'background-color': '#6366f1',
+                    'shape': 'round-rectangle',
+                    'background-color': '#4f46e5',
                     'label': 'data(label)',
-                    'color': '#e5e7eb',
-                    'text-valign': 'bottom',
+                    'color': '#f3f4f6',
+                    'text-valign': 'center',
                     'text-halign': 'center',
-                    'text-margin-y': 8,
-                    'font-size': '12px',
+                    'text-wrap': 'ellipsis',
+                    'text-max-width': '90px',
+                    'font-size': '10px',
                     'font-weight': '600',
                     'text-outline-color': '#0a0e1a',
                     'text-outline-width': 2,
-                    'width': '40px',
-                    'height': '40px',
-                    'border-width': '3px',
-                    'border-color': '#8b5cf6',
-                    'transition-property': 'background-color, border-color, width, height',
-                    'transition-duration': '0.2s'
+                    'width': 'label',
+                    'height': 'label',
+                    'padding': '10px',
+                    'min-width': '56px',
+                    'min-height': '28px',
+                    'border-width': 2,
+                    'border-color': '#818cf8',
+                }
+            },
+            {
+                selector: 'node[type = "entrypoint"]',
+                style: {
+                    'background-color': '#059669',
+                    'border-color': '#34d399',
+                }
+            },
+            {
+                selector: 'node[node_type = "external"]',
+                style: {
+                    'background-color': '#b45309',
+                    'border-color': '#fbbf24',
+                    'shape': 'ellipse',
                 }
             },
             {
                 selector: 'node.highlighted',
                 style: {
-                    'background-color': '#ef4444',
-                    'border-color': '#dc2626',
-                    'border-width': '4px',
-                    'width': '50px',
-                    'height': '50px',
-                    'z-index': 999
+                    'background-color': '#dc2626',
+                    'border-color': '#fca5a5',
+                    'border-width': 3,
                 }
             },
             {
                 selector: 'node.focus',
                 style: {
                     'background-color': '#10b981',
-                    'border-color': '#059669',
-                    'border-width': '4px',
-                    'width': '50px',
-                    'height': '50px',
-                    'z-index': 999
+                    'border-color': '#6ee7b7',
+                    'border-width': 3,
                 }
             },
             {
                 selector: 'edge',
                 style: {
-                    'width': 2,
-                    'line-color': '#374151',
-                    'target-arrow-color': '#374151',
+                    'width': 2.5,
+                    'line-color': '#64748b',
+                    'target-arrow-color': '#94a3b8',
                     'target-arrow-shape': 'triangle',
                     'curve-style': 'bezier',
-                    'arrow-scale': 1.3,
-                    'opacity': 0.6,
-                    'transition-property': 'line-color, width, opacity',
-                    'transition-duration': '0.2s'
+                    'arrow-scale': 1.2,
+                    'label': 'data(label)',
+                    'font-size': '8px',
+                    'color': '#9ca3af',
+                    'text-rotation': 'autorotate',
+                    'text-margin-y': -8,
+                    'opacity': 0.85,
                 }
             },
             {
                 selector: 'edge.highlighted',
                 style: {
-                    'line-color': '#10b981',
-                    'target-arrow-color': '#10b981',
-                    'width': 3,
+                    'line-color': '#22c55e',
+                    'target-arrow-color': '#22c55e',
+                    'width': 3.5,
                     'opacity': 1,
-                    'z-index': 998
+                    'z-index': 998,
                 }
-            }
+            },
         ],
         layout: {
             name: 'cose',
             animate: true,
-            animationDuration: 500,
-            nodeRepulsion: 10000,
-            idealEdgeLength: 120,
+            animationDuration: 600,
+            nodeRepulsion: 8000,
+            idealEdgeLength: 140,
             edgeElasticity: 100,
-            nestingFactor: 5,
-            gravity: 80,
-            numIter: 1000,
-            initialTemp: 200,
-            coolingFactor: 0.95,
-            minTemp: 1.0
+            nestingFactor: 1.2,
+            gravity: 1,
+            numIter: 1500,
         },
-        minZoom: 0.1,
-        maxZoom: 3,
-        wheelSensitivity: 0.2
+        minZoom: 0.2,
+        maxZoom: 4,
+        wheelSensitivity: 0.2,
     });
     
     // Update stats
@@ -421,25 +487,16 @@ function renderGraph(graphData) {
     const edgeCount = cy.edges().length;
     graphStats.textContent = `${nodeCount} nodes, ${edgeCount} edges`;
     
-    // Add click handler for nodes
     cy.on('tap', 'node', function(evt) {
         const node = evt.target;
         const data = node.data();
-        console.log('Clicked node:', data);
-        
-        // Highlight connected nodes
         cy.elements().removeClass('highlighted');
         node.addClass('highlighted');
         node.neighborhood().addClass('highlighted');
-        
-        // Show tooltip
-        const filename = data.label || data.id;
-        const fileType = data.type || 'Unknown';
-        const degree = node.degree();
-        
-        console.log(`File: ${filename}`);
-        console.log(`Type: ${fileType}`);
-        console.log(`Connections: ${degree}`);
+        if (graphStats) {
+            const path = data.tooltip || data.full_path || data.id;
+            graphStats.textContent = `${data.label} — ${node.degree()} connection(s) — ${path}`;
+        }
     });
     
     // Add premium hover effect
@@ -541,11 +598,29 @@ if (resetGraphBtn) {
     });
 }
 
+if (filesOnlyToggle) {
+    filesOnlyToggle.addEventListener('change', () => {
+        if (lastGraphData) renderGraph(lastGraphData);
+    });
+}
+
 // Utility
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function formatMarkdown(text) {
+    if (!text) return '';
+    let s = escapeHtml(text);
+    s = s.replace(/^## (.+)$/gm, '<h3 class="md-h3">$1</h3>');
+    s = s.replace(/^### (.+)$/gm, '<h4 class="md-h4">$1</h4>');
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/^- (.+)$/gm, '<li>$1</li>');
+    s = s.replace(/(<li>[\s\S]*?<\/li>)+/g, m => `<ul class="response-list">${m}</ul>`);
+    s = s.replace(/\n\n/g, '</p><p>');
+    return `<p>${s}</p>`;
 }
 
 // Made with Bob

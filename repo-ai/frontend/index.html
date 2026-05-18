@@ -130,10 +130,19 @@
                     <div class="graph-controls">
                         <button id="fitGraphBtn" class="btn btn-secondary btn-sm">Fit Screen</button>
                         <button id="resetGraphBtn" class="btn btn-secondary btn-sm">Reset</button>
+                        <label class="graph-toggle" title="Show only file-level imports">
+                            <input type="checkbox" id="filesOnlyToggle" checked>
+                            Files only
+                        </label>
                         <span id="graph-stats" class="graph-stats"></span>
                     </div>
                 </div>
                 <div class="card-body graph-body">
+                    <div class="graph-legend-bar">
+                        <span class="legend-item"><span class="legend-swatch file"></span> File</span>
+                        <span class="legend-item"><span class="legend-swatch entry"></span> Entry</span>
+                        <span class="legend-item"><span class="legend-swatch edge"></span> Import</span>
+                    </div>
                     <div id="cy" class="cytoscape-container">
                         <div class="empty-state">
                             <div class="empty-icon">🕸️</div>

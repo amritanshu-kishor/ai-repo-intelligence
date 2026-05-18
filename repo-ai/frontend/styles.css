@@ -583,6 +583,24 @@ body {
 .risk-medium { color: var(--accent-warning); }
 .risk-high { color: var(--accent-danger); }
 
+.response-markdown .md-h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    margin: 1rem 0 0.5rem;
+}
+
+.response-markdown .md-h4 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin: 0.75rem 0 0.35rem;
+}
+
+.response-markdown p {
+    margin-bottom: 0.75rem;
+    line-height: 1.65;
+}
+
 /* Graph Visualization */
 #cy {
     width: 100%;
@@ -1579,6 +1597,50 @@ tr:hover {
     color: var(--text-primary);
 }
 
+.graph-legend-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-primary);
+}
+
+.graph-legend-bar .legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.legend-swatch.file { background: #4f46e5; border: 1px solid #818cf8; }
+.legend-swatch.entry { background: #059669; border: 1px solid #34d399; }
+.legend-swatch.edge { width: 24px; height: 2px; border-radius: 0; background: #94a3b8; }
+
+.graph-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+}
+
+.graph-toggle input {
+    accent-color: var(--accent-primary);
+}
+
 /* Cytoscape Container */
 .cytoscape-container {
     width: 100%;
@@ -1587,6 +1649,7 @@ tr:hover {
     border-radius: var(--radius-lg);
     position: relative;
     overflow: hidden;
+    border: 1px solid var(--border-primary);
 }
 
 .graph-placeholder {

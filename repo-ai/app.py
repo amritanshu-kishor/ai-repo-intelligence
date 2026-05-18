@@ -3,6 +3,14 @@ Minimal Flask API for Repository Intelligence Testing (Hackathon MVP).
 Wraps existing orchestration without modifying core modules.
 """
 
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load .env before any module reads config (must run before main/config imports)
+_APP_ROOT = Path(__file__).resolve().parent
+load_dotenv(_APP_ROOT / ".env", override=True)
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import json
@@ -12,10 +20,9 @@ import zipfile
 import sys
 import logging
 
-from pathlib import Path
-
 # Import existing orchestration
 from main import run_pipeline
+import config
 
 # Import integration layer
 from integrations.parser_connector import parser_connector
@@ -50,12 +57,16 @@ def index():
 @app.route('/api/health', methods=['GET'])
 def health():
     """Health check endpoint with parser-workflow status."""
+    config.reload_from_env()
     parser_available = parser_connector.health_check()
     active_session = session_manager.get_active_session()
-    
+    _, llm_configured = config.get_active_api_key()
+
     return jsonify({
         "status": "ready",
         "backend": "operational",
+        "llm_provider": config.LLM_PROVIDER,
+        "llm_configured": llm_configured,
         "parser_workflow": "available" if parser_available else "unavailable",
         "active_repository": active_session.repository_id if active_session else "none",
         "file_count": active_session.file_count if active_session else 0,
@@ -227,9 +238,19 @@ def ask_query():
             logger.info(f"Dependencies available: {session.dependencies_available}")
             logger.info(f"Session queries: {session.query_count}")
         logger.info("=" * 60)
-        
+
+        config.reload_from_env()
+        _, llm_ok = config.get_active_api_key()
+        if not llm_ok and not config.USE_MOCK_LLM and config.LLM_PROVIDER != "mock":
+            return jsonify({
+                "success": False,
+                "error": (
+                    f"LLM API key not configured for provider '{config.LLM_PROVIDER}'. "
+                    "Edit repo-ai/.env (see .env.example), add your key, then restart: python app.py"
+                ),
+            }), 400
+
         # Run existing orchestration pipeline
-        # The pipeline will automatically use live data if parser-workflow is available
         result = run_pipeline(query, repository_id=repo_id)
         
         logger.info("=" * 60)
@@ -258,7 +279,9 @@ def ask_query():
     
     except Exception as e:
         logger.error(f"Query processing failed: {e}")
-        return jsonify({"error": str(e)}), 500
+        msg = str(e)
+        status = 401 if "Invalid API key" in msg or "401" in msg else 500
+        return jsonify({"success": False, "error": msg}), status
 
 
 @app.route('/api/graph/<repository_id>', methods=['GET'])
@@ -276,31 +299,18 @@ def get_graph(repository_id):
                 "error": "Graph not available for this repository"
             }), 404
         
-        # Ensure both formats are available
-        nodes = graph_data.get("nodes", [])
-        edges = graph_data.get("edges", [])
-        elements = graph_data.get("elements", [])
-        
-        # If elements not present, build from nodes/edges
-        if not elements and (nodes or edges):
-            elements = []
-            for node in nodes:
-                elements.append({"data": node})
-            for edge in edges:
-                elements.append({"data": edge})
-        
-        logger.info(f"Graph retrieved: {len(nodes)} nodes, {len(edges)} edges")
-        
+        from integrations.graph_format import normalize_cytoscape_graph
+
+        graph_normalized = normalize_cytoscape_graph(graph_data)
+        logger.info(
+            f"Graph retrieved: {graph_normalized['node_count']} nodes, "
+            f"{graph_normalized['edge_count']} edges"
+        )
+
         return jsonify({
             "success": True,
             "repository": repository_id,
-            "graph": {
-                "nodes": nodes,
-                "edges": edges,
-                "elements": elements,
-                "node_count": len(nodes),
-                "edge_count": len(edges),
-            }
+            "graph": graph_normalized,
         })
     
     except Exception as e:

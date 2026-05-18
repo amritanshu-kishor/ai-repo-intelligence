@@ -225,12 +225,16 @@ class ParserConnector:
                     "Graph data missing both 'nodes'/'edges' and 'elements'"
                 )
             
-            # Normalize to expected format
+            from integrations.graph_format import normalize_cytoscape_graph
+
+            graph_normalized = normalize_cytoscape_graph(
+                {"nodes": nodes, "edges": edges, "elements": graph_data.get("elements", [])}
+            )
+
             normalized = {
                 "repository_id": repository_id,
                 "format": "cytoscape-ready",
-                "nodes": nodes,
-                "edges": edges,
+                **graph_normalized,
                 "metrics": response.get("metrics", {}),
                 "node_statistics": response.get("node_statistics", {}),
             }
@@ -413,8 +417,16 @@ class ParserConnector:
             return False
 
 
+def _default_parser_url() -> str:
+    try:
+        from config import PARSER_WORKFLOW_URL
+        return PARSER_WORKFLOW_URL
+    except ImportError:
+        return "http://127.0.0.1:8001"
+
+
 # Singleton instance
-parser_connector = ParserConnector()
+parser_connector = ParserConnector(base_url=_default_parser_url())
 
 
 # Future integration hooks (commented for reference)
