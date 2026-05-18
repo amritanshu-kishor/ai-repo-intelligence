@@ -165,15 +165,34 @@ class ParserConnector:
         
         Future: May integrate with ChromaDB for semantic search
         """
-        # TODO: Implement actual parser API endpoint for summaries
-        # For now, this is a placeholder that will use the graph endpoint
-        logger.warning(
-            f"Repository summaries endpoint not yet implemented for {repository_id}. "
-            "Using fallback mode."
-        )
-        raise ParserUnavailableError(
-            "Summaries endpoint not yet implemented in parser-workflow"
-        )
+        try:
+            endpoint = f"/api/v1/parser/summaries/{repository_id}"
+            response = self._make_request("GET", endpoint)
+
+            items = response.get("items", [])
+            normalized = {
+                "repository_id": response.get("repository_id", repository_id),
+                "generated_at": response.get("generated_at", ""),
+                "items": [
+                    {
+                        "path": item.get("path", ""),
+                        "summary": item.get("summary", ""),
+                        "symbols": item.get("symbols", []),
+                    }
+                    for item in items
+                ],
+            }
+
+            logger.info(
+                f"Fetched summaries for {repository_id}: {len(normalized['items'])} items"
+            )
+            return normalized
+
+        except ParserUnavailableError:
+            raise
+        except Exception as e:
+            logger.error(f"Error fetching summaries for {repository_id}: {e}")
+            raise ParserConnectorError(f"Failed to fetch summaries: {e}") from e
     
     def fetch_dependency_graph(
         self,
@@ -381,12 +400,14 @@ class ParserConnector:
             logger.warning(f"✗ Failed to fetch dependencies: {e}")
             context["metadata"]["errors"].append(f"dependencies: {str(e)}")
         
-        # Summaries not yet implemented in parser-workflow
-        # This is expected and not an error
-        logger.info("ℹ Summaries endpoint not yet implemented (using fallback)")
-        context["metadata"]["errors"].append(
-            "summaries: Not yet implemented in parser-workflow (using fallback)"
-        )
+        try:
+            summaries = self.fetch_repository_summaries(repository_id)
+            context["summaries"] = summaries
+            context["metadata"]["sources"].append("summaries_api")
+            logger.info(f"✓ Summaries fetched: {len(summaries.get('items', []))} items")
+        except Exception as e:
+            logger.warning(f"✗ Failed to fetch summaries: {e}")
+            context["metadata"]["errors"].append(f"summaries: {str(e)}")
         
         # Log retrieval summary
         logger.info(

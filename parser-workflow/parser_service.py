@@ -3,8 +3,11 @@ from repository_session_store import repository_session_store
 from parser_schema import (
     ParserDependenciesResponse,
     ParserStatusResponse,
+    ParserSummariesResponse,
     ParserTriggerResponse,
+    SummaryItem,
 )
+from summary_builder import build_repository_summaries
 
 
 class ParserService:
@@ -49,6 +52,27 @@ class ParserService:
             repository_id=repository_id,
             dependencies=dependencies,
             message=msg,
+        )
+
+    async def get_summaries(self, repository_id: str) -> ParserSummariesResponse:
+        session = repository_session_store.get(repository_id)
+        if not session or not session.parsed_files:
+            return ParserSummariesResponse(
+                repository_id=repository_id,
+                generated_at="",
+                items=[],
+                file_count=0,
+                message="No parsed session found. Upload repository first.",
+            )
+
+        payload = build_repository_summaries(repository_id, session.parsed_files)
+        items = [SummaryItem(**item) for item in payload["items"]]
+        return ParserSummariesResponse(
+            repository_id=repository_id,
+            generated_at=payload["generated_at"],
+            items=items,
+            file_count=payload["file_count"],
+            message=f"Generated summaries for {len(items)} file(s) from parsed repository.",
         )
 
 

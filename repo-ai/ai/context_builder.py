@@ -533,7 +533,10 @@ def retrieve(
         if external_summaries is not None:
             provenance["sources"].append("external_summaries")
         elif PARSER_INTEGRATION_AVAILABLE:
-            provenance["sources"].append("parser_workflow_summaries_fallback")
+            if summaries_doc.get("items"):
+                provenance["sources"].append("parser_workflow_summaries")
+            else:
+                provenance["sources"].append("parser_workflow_summaries_fallback")
         
         if external_graph is not None:
             provenance["sources"].append("external_graph")

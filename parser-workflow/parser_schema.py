@@ -31,3 +31,19 @@ class ParserDependenciesResponse(BaseModel):
     repository_id: str
     dependencies: List[DependencyItem]
     message: str
+
+
+class SummaryItem(BaseModel):
+    path: str
+    summary: str
+    symbols: List[str] = []
+    language: Optional[str] = None
+    loc: Optional[int] = None
+
+
+class ParserSummariesResponse(BaseModel):
+    repository_id: str
+    generated_at: str
+    items: List[SummaryItem]
+    file_count: int
+    message: str

@@ -3,6 +3,7 @@ from fastapi import APIRouter, status
 from parser_schema import (
     ParserDependenciesResponse,
     ParserStatusResponse,
+    ParserSummariesResponse,
     ParserTriggerRequest,
     ParserTriggerResponse,
 )
@@ -34,3 +35,11 @@ async def get_parse_status(repo_id: str) -> ParserStatusResponse:
 )
 async def get_dependencies(repo_id: str) -> ParserDependenciesResponse:
     return await parser_service.get_dependencies(repo_id)
+
+
+@router.get(
+    "/parser/summaries/{repo_id}",
+    response_model=ParserSummariesResponse,
+)
+async def get_summaries(repo_id: str) -> ParserSummariesResponse:
+    return await parser_service.get_summaries(repo_id)
