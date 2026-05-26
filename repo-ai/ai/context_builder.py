@@ -489,7 +489,7 @@ def retrieve(
         logging.info(f"   Sample nodes: {[n.get('data', {}).get('id') for n in sample_nodes]}")
     if internal_deps > 0:
         sample_deps = deps_doc.get('internal', [])[:3]
-        logging.info(f"   Sample internal deps: {[f"{d.get('from', 'N/A')}->{d.get('to', 'N/A')}" for d in sample_deps]}")
+        logging.info(f"   Sample internal deps: {['{}->{}'.format(d.get('from', 'N/A'), d.get('to', 'N/A')) for d in sample_deps]}")
 
     full_data = {
         "summaries": summaries_doc.get("items", summaries_doc.get("summaries", [])),
