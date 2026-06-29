@@ -482,7 +482,52 @@ html, body {
 }
 .upload-status-modern.ok { color: var(--success); }
 .upload-status-modern.err { color: var(--danger); }
-.upload-status-modern.uploading { color: var(--accent); }
+.upload-status-modern.uploading { color: var(--text-secondary); }
+
+/* Upload progress overlay — shown inside the upload wrapper zone */
+.upload-progress-overlay {
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 28px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.upload-spinner {
+    width: 36px;
+    height: 36px;
+    border: 2.5px solid rgba(255, 255, 255, 0.06);
+    border-top-color: rgba(255, 255, 255, 0.75);
+    border-radius: 50%;
+    animation: rotateSpinner 0.75s linear infinite;
+}
+
+.upload-progress-text {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+}
+
+.upload-progress-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    max-width: 260px;
+    line-height: 1.4;
+}
+
+@keyframes rotateSpinner {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
 /* File browser component */
 .repo-browser-card {
@@ -1639,17 +1684,17 @@ html, body {
 /* Path Hover & Inline Code Tooltips */
 .path-hover-code {
     font-family: var(--font-mono);
-    background: rgba(99, 102, 241, 0.15);
-    color: #a5b4fc;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
     padding: 2px 6px;
     border-radius: 4px;
-    border-bottom: 1.5px dashed var(--accent);
+    border-bottom: 1.5px dashed rgba(255, 255, 255, 0.25);
     cursor: help;
     transition: all 0.2s;
 }
 
 .path-hover-code:hover {
-    background: rgba(99, 102, 241, 0.25);
+    background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
 }
 
@@ -1678,8 +1723,8 @@ html, body {
 }
 
 .chain-details-dropdown[open] {
-    border-color: var(--accent-hover);
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .chain-summary-header {
@@ -1700,11 +1745,11 @@ html, body {
     font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
-    background: var(--accent-soft);
-    color: #a5b4fc;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
     padding: 2px 8px;
     border-radius: 99px;
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     white-space: nowrap;
 }
 
@@ -1789,7 +1834,7 @@ html, body {
 
 .chain-detail-arrow {
     margin: 4px 0;
-    color: var(--accent);
+    color: var(--text-muted);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1835,13 +1880,13 @@ html, body {
 .rec-icon-box {
     width: 36px;
     height: 36px;
-    background: var(--accent-soft);
-    border: 1px solid rgba(99, 102, 241, 0.15);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--accent);
+    color: var(--text-secondary);
     flex-shrink: 0;
 }
 
