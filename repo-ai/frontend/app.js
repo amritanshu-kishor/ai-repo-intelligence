@@ -11,10 +11,12 @@ const repoInfo = document.getElementById('repo-info');
 const repoName = document.getElementById('repo-name');
 const fileCount = document.getElementById('file-count');
 const fileList = document.getElementById('file-list');
-const statusBadge = document.getElementById('status-badge');
-const statusText = document.querySelector('.status-text');
+const statusBadge = null; // removed for production
+const statusText = null;  // removed for production
 const repoBadge = document.getElementById('repo-badge');
 const repoStatusBar = document.getElementById('repo-status-bar');
+const uploadProgressOverlay = document.getElementById('upload-progress-overlay');
+const uploadProgressText = document.getElementById('upload-progress-text');
 
 const queryInput = document.getElementById('queryInput');
 const analyzeBtn = document.getElementById('analyzeBtn');
@@ -188,12 +190,10 @@ async function checkHealth() {
         const response = await fetch(`${API_BASE}/health`);
         const data = await response.json();
         
-        if (data.status === 'ready') {
-            const llm = data.llm_configured ? (data.llm_provider || 'llm') : 'no API key';
-            setStatus(data.llm_configured ? 'ready' : 'error', data.llm_configured ? 'System ready' : 'LLM key missing');
-            if (!data.llm_configured) {
-                console.warn(`LLM not configured (${llm}). Edit repo-ai/.env and restart app.py`);
-            }
+        // Log LLM config state to console only (status UI removed for production)
+        if (data.status === 'ready' && !data.llm_configured) {
+            const llm = data.llm_provider || 'unknown';
+            console.warn(`LLM not configured (${llm}). Edit repo-ai/.env and restart app.py`);
         }
         
         if (data.active_repository && data.active_repository !== 'none') {
@@ -205,10 +205,10 @@ async function checkHealth() {
             loadRepositoryGraph(data.active_repository);
         }
     } catch (error) {
-        setStatus('error', 'API offline');
         console.error('Health check failed:', error);
     }
 }
+
 
 // ----------------------------------------------------
 // File Upload Logic
@@ -217,8 +217,13 @@ async function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
-    uploadStatus.textContent = 'Uploading repository archive...';
-    uploadStatus.className = 'upload-status-modern uploading';
+    // Show progress overlay, hide drop zone
+    if (uploadProgressOverlay) {
+        uploadZone.style.display = 'none';
+        uploadProgressOverlay.hidden = false;
+    }
+    if (uploadProgressText) uploadProgressText.textContent = `Uploading ${file.name}...`;
+    uploadStatus.textContent = '';
     uploadBtn.disabled = true;
     
     const formData = new FormData();
@@ -233,6 +238,11 @@ async function handleFileUpload(event) {
         const data = await response.json();
         
         if (data.success) {
+            // Hide overlay, restore zone
+            if (uploadProgressOverlay) {
+                uploadProgressOverlay.hidden = true;
+                uploadZone.style.display = '';
+            }
             uploadStatus.textContent = 'Upload successful';
             uploadStatus.className = 'upload-status-modern ok';
             
@@ -259,10 +269,19 @@ async function handleFileUpload(event) {
             // Fetch dependency graph
             loadRepositoryGraph(data.repository);
         } else {
+            // Hide overlay, restore zone
+            if (uploadProgressOverlay) {
+                uploadProgressOverlay.hidden = true;
+                uploadZone.style.display = '';
+            }
             uploadStatus.textContent = `Error: ${data.error}`;
             uploadStatus.className = 'upload-status-modern err';
         }
     } catch (error) {
+        if (uploadProgressOverlay) {
+            uploadProgressOverlay.hidden = true;
+            uploadZone.style.display = '';
+        }
         uploadStatus.textContent = `Upload failed: ${error.message}`;
         uploadStatus.className = 'upload-status-modern err';
         console.error('Upload error:', error);
