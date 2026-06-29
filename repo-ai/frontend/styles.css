@@ -1,43 +1,44 @@
 /* RepoAI Modern Dark Theme Design System */
 
 :root {
-    /* Color Palette - Premium Slate & Neon Accents */
-    --bg-base: #080c14;
-    --bg-gradient: linear-gradient(135deg, #060b13 0%, #0d1527 100%);
-    --bg-surface: rgba(13, 20, 35, 0.45);
-    --bg-surface-hover: rgba(20, 30, 55, 0.6);
-    --bg-control: rgba(15, 23, 42, 0.6);
+    /* Color Palette - Clean Production Black */
+    --bg-base: #080c10;
+    --bg-gradient: linear-gradient(135deg, #060a0e 0%, #0c1118 100%);
+    --bg-surface: rgba(12, 17, 24, 0.55);
+    --bg-surface-hover: rgba(18, 25, 36, 0.65);
+    --bg-control: rgba(14, 20, 30, 0.65);
     --border-color: rgba(255, 255, 255, 0.07);
-    --border-color-hover: rgba(255, 255, 255, 0.15);
-    --border-color-active: rgba(99, 102, 241, 0.4);
+    --border-color-hover: rgba(255, 255, 255, 0.14);
+    --border-color-active: rgba(255, 255, 255, 0.22);
     
-    --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
-    --text-muted: #64748b;
+    --text-primary: #f0f4f8;
+    --text-secondary: #a8b8c8;
+    --text-muted: #546070;
     --text-dark: #0f172a;
     
-    --accent: #6366f1; /* Indigo */
-    --accent-hover: #4f46e5;
-    --accent-glow: rgba(99, 102, 241, 0.25);
-    --accent-soft: rgba(99, 102, 241, 0.1);
+    /* Neutral accent — clean white/light for production */
+    --accent: #d0d8e4;
+    --accent-hover: #ffffff;
+    --accent-glow: rgba(208, 216, 228, 0.12);
+    --accent-soft: rgba(255, 255, 255, 0.05);
     
-    --purple: #a855f7;
-    --purple-glow: rgba(168, 85, 247, 0.2);
+    --purple: #c0c8d8;  /* softened, no neon */
+    --purple-glow: rgba(192, 200, 216, 0.1);
     
-    --success: #10b981; /* Emerald */
-    --success-soft: rgba(16, 185, 129, 0.1);
-    --success-glow: rgba(16, 185, 129, 0.25);
+    --success: #22c55e;
+    --success-soft: rgba(34, 197, 94, 0.08);
+    --success-glow: rgba(34, 197, 94, 0.2);
     
-    --warning: #f59e0b; /* Amber */
+    --warning: #f59e0b;
     --warning-soft: rgba(245, 158, 11, 0.1);
-    --warning-glow: rgba(245, 158, 11, 0.25);
+    --warning-glow: rgba(245, 158, 11, 0.2);
     
-    --danger: #ef4444; /* Rose */
+    --danger: #ef4444;
     --danger-soft: rgba(239, 68, 68, 0.1);
-    --danger-glow: rgba(239, 68, 68, 0.25);
+    --danger-glow: rgba(239, 68, 68, 0.2);
     
-    --info: #3b82f6; /* Blue */
-    --info-soft: rgba(59, 130, 246, 0.1);
+    --info: #60a5fa;
+    --info-soft: rgba(96, 165, 250, 0.08);
     
     /* Layout Variables */
     --radius-sm: 8px;
@@ -49,8 +50,8 @@
     --font-mono: 'Fira Code', 'JetBrains Mono', monospace;
     
     --blur: 20px;
-    --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-    --shadow-neon-accent: 0 0 20px rgba(99, 102, 241, 0.15);
+    --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+    --shadow-neon-accent: 0 0 20px rgba(255, 255, 255, 0.04);
 }
 
 /* Base resets & layout */
@@ -117,12 +118,13 @@ html, body {
 .brand-icon-wrapper {
     width: 38px;
     height: 38px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .brand-icon-wrapper svg {
@@ -136,9 +138,7 @@ html, body {
     font-size: 1.15rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    background: linear-gradient(to right, #ffffff, #c7d2fe);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-primary);
 }
 
 .brand-version {
@@ -335,9 +335,9 @@ html, body {
     left: 20%;
     right: 20%;
     height: 2px;
-    background: linear-gradient(90deg, var(--accent) 0%, var(--purple) 100%);
+    background: rgba(255, 255, 255, 0.5);
     border-radius: 999px;
-    box-shadow: 0 0 10px var(--accent);
+    box-shadow: none;
 }
 
 .tab-icon {
@@ -389,9 +389,9 @@ html, body {
 
 .upload-zone-modern:hover,
 .upload-zone-modern.drag-over {
-    border-color: var(--accent);
-    background: rgba(99, 102, 241, 0.04);
-    box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.03);
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.015);
 }
 
 .upload-art {
@@ -409,7 +409,7 @@ html, body {
 .upload-arrow-svg {
     width: 24px;
     height: 24px;
-    color: var(--accent);
+    color: var(--text-secondary);
     transition: transform 0.3s ease;
 }
 
@@ -424,7 +424,7 @@ html, body {
     right: 0;
     bottom: 0;
     border-radius: 50%;
-    border: 2px solid var(--accent);
+    border: 2px solid rgba(255, 255, 255, 0.15);
     opacity: 0;
 }
 
@@ -452,22 +452,25 @@ html, body {
 }
 
 .btn-modern-primary {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-    border: none;
-    color: #fff;
-    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    padding: 8px 20px;
     border-radius: var(--radius-sm);
     font-family: var(--font-sans);
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: none;
     transition: all 0.2s ease;
+    letter-spacing: 0.01em;
 }
 
 .btn-modern-primary:hover {
+    background: rgba(255, 255, 255, 0.11);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45);
 }
 
 .upload-status-modern {
@@ -671,7 +674,7 @@ html, body {
 }
 
 .tree-node.file-item .node-icon {
-    color: #38bdf8; /* Light blue code file */
+    color: var(--text-secondary); /* neutral file icon */
 }
 
 .node-label {
@@ -760,9 +763,9 @@ html, body {
 
 .btn-modern-analyze {
     width: 100%;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
-    border: none;
-    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
     padding: 12px;
     border-radius: var(--radius-md);
     font-family: var(--font-sans);
@@ -773,8 +776,9 @@ html, body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2);
+    box-shadow: none;
     transition: all 0.25s ease;
+    letter-spacing: 0.01em;
 }
 
 .btn-modern-analyze svg {
@@ -784,7 +788,10 @@ html, body {
 }
 
 .btn-modern-analyze:hover:not(:disabled) {
-    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    box-shadow: none;
 }
 
 .btn-modern-analyze:hover:not(:disabled) svg {
@@ -792,9 +799,10 @@ html, body {
 }
 
 .btn-modern-analyze:disabled {
-    opacity: 0.4;
+    opacity: 0.3;
     cursor: not-allowed;
-    background: var(--border-color-hover);
+    background: rgba(255, 255, 255, 0.02);
+    border-color: var(--border-color);
     box-shadow: none;
 }
 
@@ -830,8 +838,8 @@ html, body {
 }
 
 .example-btn-modern:hover {
-    border-color: var(--accent);
-    background: var(--accent-soft);
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
     color: #ffffff;
     transform: translateX(2px);
 }
@@ -843,7 +851,7 @@ html, body {
 }
 
 .example-btn-modern:hover .btn-icon {
-    color: var(--accent);
+    color: var(--text-secondary);
 }
 
 /* Loading Overlay Modernized */
@@ -875,9 +883,9 @@ html, body {
 .spinner-modern {
     width: 44px;
     height: 44px;
-    border: 3.5px solid rgba(255, 255, 255, 0.05);
-    border-top-color: var(--accent);
-    border-right-color: var(--purple);
+    border: 3.5px solid rgba(255, 255, 255, 0.06);
+    border-top-color: rgba(255, 255, 255, 0.7);
+    border-right-color: rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     animation: rotateSpinner 0.8s linear infinite;
     margin: 0 auto 20px;
