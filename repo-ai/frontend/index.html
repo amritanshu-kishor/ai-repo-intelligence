@@ -39,13 +39,7 @@
                 </div>
             </div>
 
-            <!-- Health & Connection Status -->
-            <div class="system-status">
-                <div class="status-pill-modern">
-                    <span id="status-badge" class="status-dot"></span>
-                    <span class="status-text">Connecting to service...</span>
-                </div>
-            </div>
+            <!-- Health & Connection Status removed for production -->
         </header>
 
         <!-- Main Body Wrapper -->
@@ -88,7 +82,16 @@
                                 <p>Drag and drop your project ZIP or</p>
                                 <button type="button" id="uploadBtn" class="btn-modern-primary">Browse Files</button>
                             </div>
+
+                            <!-- Upload progress overlay (shown during upload) -->
+                            <div id="upload-progress-overlay" class="upload-progress-overlay" hidden>
+                                <div class="upload-spinner"></div>
+                                <p class="upload-progress-text" id="upload-progress-text">Uploading archive...</p>
+                                <p class="upload-progress-sub">Parsing files and building dependency graph...</p>
+                            </div>
+
                             <div id="upload-status" class="upload-status-modern" role="status"></div>
+
                         </div>
 
                         <!-- File browser explorer -->
@@ -96,7 +99,6 @@
                             <div class="repo-browser-header">
                                 <div class="title-wrap">
                                     <h4>Project Explorer</h4>
-                                    <span class="chip-success-modern">Connected</span>
                                 </div>
                                 <div class="browser-info-details">
                                     <div class="meta-item-simple">
