@@ -103,8 +103,17 @@ def upload_repository():
             zip_ref.extractall(repo_path)
         
         # Scan repository files
+        SKIP_DIRS = {
+            "node_modules", ".git", "__pycache__", "venv", ".venv", "dist", "build",
+            "target", ".github", ".vscode", ".idea", "coverage", ".next", "out",
+            "bin", "obj", ".gradle", "vendor", "__tests__",
+        }
+        
         files = []
         for root, dirs, filenames in os.walk(repo_path):
+            # Prune directories in-place to avoid traversing them
+            dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith('.')]
+            
             for filename in filenames:
                 if filename.endswith(('.py', '.js', '.ts', '.java', '.go', '.rs', '.cpp', '.c', '.h')):
                     rel_path = os.path.relpath(os.path.join(root, filename), repo_path)

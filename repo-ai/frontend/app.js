@@ -573,7 +573,7 @@ function displayResponse(result) {
     if (intelligence.affected_files && intelligence.affected_files.length > 0) {
         html += `
             <div>
-                <div class="response-section-title-modern">📂 Affected files (${intelligence.affected_files.length})</div>
+                <div class="response-section-title-modern">Affected files (${intelligence.affected_files.length})</div>
                 <ul class="affected-list-modern">
                     ${intelligence.affected_files.map(f => {
                         const path = f.path || f.id;
@@ -609,7 +609,7 @@ function displayResponse(result) {
     if (intelligence.dependency_chain && intelligence.dependency_chain.length > 0) {
         html += `
             <div>
-                <div class="response-section-title-modern">🔗 Dependency Reasoning Chain</div>
+                <div class="response-section-title-modern">Dependency Reasoning Chain</div>
                 <ul class="reasoning-list-modern">
                     ${intelligence.dependency_chain.slice(0, 8).map((chain, index) => {
                         let paths = [];
@@ -627,8 +627,8 @@ function displayResponse(result) {
                         }
                         
                         const summaryFlow = paths.map(p => {
-                            const name = basename(p);
-                            return `<span class="chain-node-summary" title="${escapeHtml(p)}">${escapeHtml(name)}</span>`;
+                             const name = basename(p);
+                             return `<span class="chain-node-summary" title="${escapeHtml(p)}">${escapeHtml(name)}</span>`;
                         }).join('<span class="chain-arrow"> → </span>');
                         
                         const detailSteps = paths.map((p, i) => {
@@ -671,7 +671,7 @@ function displayResponse(result) {
     if (intelligence.recommendations && intelligence.recommendations.length > 0) {
         html += `
             <div>
-                <div class="response-section-title-modern">🚀 Recommended Architectural Actions</div>
+                <div class="response-section-title-modern">Recommended Architectural Actions</div>
                 <div class="recommendations-box-modern">
                     ${intelligence.recommendations.map(rec => {
                         const match = rec.match(/^\*\*([^*]+)\*\*:\s*(.+)$/);

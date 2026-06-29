@@ -351,7 +351,7 @@ def _extract_python(content: str) -> tuple[list[dict], list[dict], list[dict], l
             methods = [n.name for n in node.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))]
             classes.append({"name": node.name, "bases": bases, "methods": methods})
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            if not any(isinstance(p, ast.ClassDef) for p in ast.walk(tree) if hasattr(p, "body") and node in getattr(p, "body", [])):
+            if not any(node in p.body for p in ast.walk(tree) if isinstance(p, ast.ClassDef)):
                 functions.append({"name": node.name})
 
     return imports, classes, functions, inheritance
