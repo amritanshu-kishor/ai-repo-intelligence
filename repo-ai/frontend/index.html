@@ -3,177 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repository Intelligence</title>
+    <title>Repo Intelligence — AI Repository Platform</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
 </head>
 <body>
-    <div class="app-shell">
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    <div class="app-container">
+        <!-- Top Navigation Bar -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="glow-svg">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
                 </div>
-                <div>
-                    <h1>Repo Intelligence</h1>
-                    <p class="brand-tag">Dependency analysis</p>
+                <div class="brand-details">
+                    <h1>RepoAI</h1>
+                    <span class="brand-version">v1.2.0</span>
                 </div>
             </div>
 
-            <section class="panel panel-upload">
-                <div class="panel-head">
-                    <h2>Upload</h2>
-                    <span class="panel-hint">ZIP archive</span>
+            <!-- Active Repository Info in Header -->
+            <div class="active-repo-display" id="repo-status-bar" hidden>
+                <div class="repo-meta-pill">
+                    <svg class="icon animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span id="repo-badge" class="repo-name-text">Loading repository...</span>
+                    <span id="repo-stats" class="repo-stats-badge">—</span>
                 </div>
-                <div class="panel-body">
-                    <input type="file" id="zipInput" accept=".zip" hidden>
-                    <div class="upload-zone" id="upload-zone">
-                        <div class="upload-icon-wrap">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                        </div>
-                        <p class="upload-title">Drop ZIP here</p>
-                        <p class="upload-sub">or browse files</p>
-                        <button type="button" id="uploadBtn" class="btn btn-primary">Choose file</button>
-                    </div>
-                    <p id="upload-status" class="upload-status" role="status"></p>
-                    <div id="repo-info" class="repo-info" hidden>
-                        <div class="repo-info-head">
-                            <span class="chip chip-success">Loaded</span>
-                        </div>
-                        <dl class="repo-meta">
-                            <div><dt>Name</dt><dd id="repo-name">—</dd></div>
-                            <div><dt>Files</dt><dd id="file-count">—</dd></div>
-                        </dl>
-                        <div id="file-list" class="file-list"></div>
-                    </div>
-                </div>
-            </section>
+            </div>
 
-            <section class="panel panel-query">
-                <div class="panel-head">
-                    <h2>Ask AI</h2>
-                    <span class="panel-hint">Natural language</span>
-                </div>
-                <div class="panel-body">
-                    <div class="query-input-wrapper">
-                        <textarea
-                            id="queryInput"
-                            rows="3"
-                            placeholder="What breaks if auth.py changes?"
-                            class="query-input"
-                        ></textarea>
-                        <button type="button" id="analyzeBtn" class="btn btn-analyze" disabled>
-                            <span>Analyze</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                        </button>
-                    </div>
-                    <div class="query-examples">
-                        <span class="examples-label">Quick</span>
-                        <button type="button" class="example-btn" data-query="What breaks if auth.py changes?">Impact</button>
-                        <button type="button" class="example-btn" data-query="Show me the dependency chain for database.py">Chain</button>
-                        <button type="button" class="example-btn" data-query="Are there any circular dependencies?">Cycles</button>
-                    </div>
-                </div>
-            </section>
-
-            <div class="sidebar-footer">
-                <div class="status-pill">
+            <!-- Health & Connection Status -->
+            <div class="system-status">
+                <div class="status-pill-modern">
                     <span id="status-badge" class="status-dot"></span>
-                    <span class="status-text">Connecting…</span>
+                    <span class="status-text">Connecting to service...</span>
                 </div>
             </div>
-        </aside>
+        </header>
 
-        <main class="workspace">
-            <header class="topbar">
-                <div class="topbar-left">
-                    <h2 class="page-title">Analysis workspace</h2>
-                    <div class="repo-status-bar" id="repo-status-bar" hidden>
-                        <svg class="repo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-                        <span id="repo-badge" class="repo-name">No repository</span>
-                        <span class="repo-stats" id="repo-stats"></span>
+        <!-- Main Body Wrapper -->
+        <main class="app-body">
+            <!-- Left Pane: Control Panel (Files, Ask AI) -->
+            <section class="pane control-pane">
+                <div class="pane-header">
+                    <nav class="pane-tabs" role="tablist">
+                        <button type="button" class="tab-btn active" data-target="pane-files" role="tab" aria-selected="true">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            <span>Repository Files</span>
+                        </button>
+                        <button type="button" class="tab-btn" data-target="pane-copilot" role="tab" aria-selected="false">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                            <span>Ask AI Copilot</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="pane-content-wrapper">
+                    <!-- Tab 1: Repository Files & Upload -->
+                    <div id="pane-files" class="tab-panel active" role="tabpanel">
+                        <!-- Dropzone container -->
+                        <div class="upload-wrapper-premium">
+                            <input type="file" id="zipInput" accept=".zip" hidden>
+                            <div class="upload-zone-modern" id="upload-zone">
+                                <div class="upload-art">
+                                    <div class="pulse-ring"></div>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="upload-arrow-svg">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                    </svg>
+                                </div>
+                                <h3>Drop repository ZIP</h3>
+                                <p>Drag and drop your project ZIP or</p>
+                                <button type="button" id="uploadBtn" class="btn-modern-primary">Browse Files</button>
+                            </div>
+                            <div id="upload-status" class="upload-status-modern" role="status"></div>
+                        </div>
+
+                        <!-- File browser explorer -->
+                        <div id="repo-info" class="repo-browser-card" hidden>
+                            <div class="repo-browser-header">
+                                <div class="title-wrap">
+                                    <h4>Project Explorer</h4>
+                                    <span class="chip-success-modern">Connected</span>
+                                </div>
+                                <div class="browser-info-details">
+                                    <div class="meta-item-simple">
+                                        <span class="lbl">Name:</span> <strong id="repo-name">—</strong>
+                                    </div>
+                                    <div class="meta-item-simple">
+                                        <span class="lbl">Total files:</span> <strong id="file-count">—</strong>
+                                    </div>
+                                </div>
+                                <!-- File Search Filter -->
+                                <div class="file-search-wrapper">
+                                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    </svg>
+                                    <input type="text" id="file-search" placeholder="Filter files by name..." class="file-search-input">
+                                    <button type="button" id="clear-search-btn" class="clear-search-btn" hidden>&times;</button>
+                                </div>
+                            </div>
+                            <div class="file-list-wrapper">
+                                <div id="file-list" class="file-list-modern"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Ask AI Copilot -->
+                    <div id="pane-copilot" class="tab-panel" role="tabpanel">
+                        <div class="copilot-input-container">
+                            <div class="copilot-head">
+                                <h3>Ask AI Repository Analysis</h3>
+                                <p>Query project dependencies, file relations, or code impact.</p>
+                            </div>
+                            
+                            <div class="query-area">
+                                <div class="textarea-wrapper">
+                                    <textarea
+                                        id="queryInput"
+                                        rows="4"
+                                        placeholder="Type a request (e.g. What happens if I update database.py?)"
+                                        class="query-textarea"
+                                    ></textarea>
+                                    <div class="textarea-decor"></div>
+                                </div>
+                                <button type="button" id="analyzeBtn" class="btn-modern-analyze" disabled>
+                                    <span>Run Analysis</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="22" y1="2" x2="11" y2="13"/>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="quick-queries">
+                                <h4>Quick Suggestions</h4>
+                                <div class="query-grid">
+                                    <button type="button" class="example-btn-modern" data-query="What breaks if auth.py changes?">
+                                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                                        </svg>
+                                        <span>Impact Analysis</span>
+                                    </button>
+                                    <button type="button" class="example-btn-modern" data-query="Show me the dependency chain for database.py">
+                                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                        </svg>
+                                        <span>Dependency Chain</span>
+                                    </button>
+                                    <button type="button" class="example-btn-modern" data-query="Are there any circular dependencies?">
+                                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                                        </svg>
+                                        <span>Circular Loops</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </header>
+            </section>
 
-            <div class="dashboard-grid">
-                <section class="panel panel-intel card response-section">
-                    <div class="panel-head panel-head-row">
-                        <div>
-                            <h2>Intelligence</h2>
-                            <p class="panel-hint">AI-powered insights</p>
+            <!-- Right Pane: Output Center (Intelligence, Graphs, Traversal Console) -->
+            <section class="pane output-pane">
+                <div class="pane-header">
+                    <nav class="pane-tabs" role="tablist">
+                        <button type="button" class="tab-btn active" data-target="pane-intelligence" role="tab" aria-selected="true">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <span>Intelligence Insights</span>
+                        </button>
+                        <button type="button" class="tab-btn" data-target="pane-graph" role="tab" aria-selected="false">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/>
+                                <line x1="6" y1="9" x2="15" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/><line x1="8.5" y1="6" x2="15" y2="6"/>
+                            </svg>
+                            <span>Interactive Graph</span>
+                        </button>
+                        <button type="button" class="tab-btn" data-target="pane-console" role="tab" aria-selected="false">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+                            </svg>
+                            <span>Reasoning Console</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="pane-content-wrapper">
+                    <!-- Loading overlay for queries -->
+                    <div id="loading" class="loading-overlay-modern" hidden>
+                        <div class="loading-card">
+                            <div class="spinner-modern"></div>
+                            <h4>AI Engine Analyzing Codebase</h4>
+                            <p>Calculating impact propagation, tracing dependency loops, and indexing graph database...</p>
                         </div>
                     </div>
-                    <div class="panel-body card-body">
-                        <div id="loading" class="loading" hidden>
-                            <div class="spinner"></div>
-                            <p>Analyzing repository…</p>
-                        </div>
-                        <div id="response-output" class="response-output">
-                            <div class="empty-state">
-                                <div class="empty-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a4 4 0 014 4c0 1.95-1.4 3.58-3.25 3.93L12 22l-1.75-12.07A4.001 4.001 0 0112 2z"/></svg>
+
+                    <!-- Tab 1: AI Intelligence Insights -->
+                    <div id="pane-intelligence" class="tab-panel active" role="tabpanel">
+                        <div class="intelligence-wrapper">
+                            <div id="response-output" class="response-container-modern">
+                                <!-- Empty state when no analysis is active -->
+                                <div class="empty-state-modern">
+                                    <div class="empty-state-art">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+                                        </svg>
+                                    </div>
+                                    <h3>Ready for Repository Inquiry</h3>
+                                    <p>Select or upload a repository ZIP and ask a query using the AI Copilot tab to reveal insights.</p>
                                 </div>
-                                <p>Upload a repo and run a query to see analysis</p>
                             </div>
                         </div>
                     </div>
-                </section>
 
-                <section class="panel panel-graph card graph-section">
-                    <div class="panel-head panel-head-row">
-                        <div>
-                            <h2>Dependency graph</h2>
-                            <p class="panel-hint">Interactive map</p>
-                        </div>
-                        <div class="graph-controls">
-                            <button type="button" id="fitGraphBtn" class="btn btn-ghost btn-sm">Fit</button>
-                            <button type="button" id="resetGraphBtn" class="btn btn-ghost btn-sm">Reset</button>
-                            <label class="graph-toggle" title="File-level nodes only">
-                                <input type="checkbox" id="filesOnlyToggle" checked>
-                                <span>Files only</span>
-                            </label>
-                            <span id="graph-stats" class="graph-stats"></span>
-                        </div>
-                    </div>
-                    <div class="panel-body graph-body card-body">
-                        <div class="graph-legend-bar">
-                            <span class="legend-item"><span class="legend-swatch file"></span>File</span>
-                            <span class="legend-item"><span class="legend-swatch entry"></span>Entry</span>
-                            <span class="legend-item"><span class="legend-swatch edge"></span>Import</span>
-                        </div>
-                        <div id="cy" class="cytoscape-container">
-                            <div class="empty-state">
-                                <div class="empty-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    <!-- Tab 2: Interactive Dependency Graph -->
+                    <div id="pane-graph" class="tab-panel" role="tabpanel">
+                        <div class="graph-layout-wrapper">
+                            <!-- Floating Controls Toolbar -->
+                            <div class="graph-floating-controls">
+                                <div class="control-group">
+                                    <button type="button" id="fitGraphBtn" class="btn-control" title="Zoom Fit Graph">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                                    </button>
+                                    <button type="button" id="resetGraphBtn" class="btn-control" title="Reset View">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                    </button>
                                 </div>
-                                <p>Graph appears after upload</p>
+                                <div class="divider"></div>
+                                <div class="control-group">
+                                    <!-- Layout Selector Option -->
+                                    <select id="graphLayoutSelect" class="select-control" title="Graph Layout Engine">
+                                        <option value="cose" selected>CoSE layout</option>
+                                        <option value="circle">Circular layout</option>
+                                        <option value="grid">Grid layout</option>
+                                        <option value="concentric">Concentric layout</option>
+                                        <option value="breadthfirst">Breadth-first layout</option>
+                                    </select>
+                                    <label class="toggle-control" title="Filter node types to files only">
+                                        <input type="checkbox" id="filesOnlyToggle" checked>
+                                        <span class="toggle-label">Files Only</span>
+                                    </label>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="graph-stats-container">
+                                    <span id="graph-stats" class="graph-stats-pill">0 nodes, 0 edges</span>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
 
-            <section class="panel panel-console card debug-section">
-                <details class="console-details" open>
-                    <summary class="panel-head panel-head-row console-summary">
-                        <div>
-                            <h2>Analysis console</h2>
-                            <p class="panel-hint">Graph reasoning & debug</p>
-                        </div>
-                        <span class="console-chevron" aria-hidden="true"></span>
-                    </summary>
-                    <div class="panel-body card-body">
-                        <div id="graph-output" class="graph-output">
-                            <div class="empty-state empty-state-compact">
-                                <p>Traversal and metrics show here after analysis</p>
+                            <!-- Legend -->
+                            <div class="graph-legend-premium">
+                                <span class="legend-chip"><span class="legend-swatch-color file"></span>File Node</span>
+                                <span class="legend-chip"><span class="legend-swatch-color entry"></span>Entry Point</span>
+                                <span class="legend-chip"><span class="legend-swatch-color external"></span>External Module</span>
+                                <span class="legend-chip"><span class="legend-swatch-line edge"></span>Import Relation</span>
+                            </div>
+
+                            <!-- Cytoscape Container -->
+                            <div id="cy" class="cytoscape-canvas">
+                                <div class="empty-state-modern">
+                                    <div class="empty-state-art">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                                        </svg>
+                                    </div>
+                                    <h3>Dependency Graph Unavailable</h3>
+                                    <p>Upload a repository archive to build and render the interactive dependencies map.</p>
+                                </div>
+                            </div>
+
+                            <!-- Clicked Node Details Drawer -->
+                            <div id="node-detail-panel" class="node-details-floating-panel" hidden>
+                                <div class="panel-header-simple">
+                                    <h5>Node Inspector</h5>
+                                    <button type="button" id="close-node-inspector" class="close-btn">&times;</button>
+                                </div>
+                                <div class="panel-body-simple">
+                                    <div class="detail-row">
+                                        <label>Label:</label> <span id="node-detail-label">—</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <label>Type:</label> <span id="node-detail-type" class="badge-type">—</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <label>Path:</label> <span id="node-detail-path">—</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <label>Connections:</label> <span id="node-detail-connections">—</span>
+                                    </div>
+                                    <div class="detail-row flex-col">
+                                        <label>Connected Nodes:</label>
+                                        <ul id="node-detail-connected-list" class="connected-nodes-list"></ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </details>
+
+                    <!-- Tab 3: Reasoning & Debug Console -->
+                    <div id="pane-console" class="tab-panel" role="tabpanel">
+                        <div class="console-wrapper-premium">
+                            <div class="console-toolbar">
+                                <div class="left">
+                                    <span class="terminal-badge">traversal-shell</span>
+                                </div>
+                                <div class="right">
+                                    <button type="button" id="copyConsoleBtn" class="btn-console-tool">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                        </svg>
+                                        <span>Copy logs</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="terminal-body">
+                                <div id="graph-output" class="terminal-stdout">
+                                    <div class="empty-state-modern-compact">
+                                        <p class="console-prompt">system@repoai:~$ waiting for execution...</p>
+                                        <p class="console-tip">Graph traversal calculations, dependency paths, and active cycles will output here during query analysis.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
     </div>

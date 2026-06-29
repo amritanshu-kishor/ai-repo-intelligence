@@ -74,11 +74,56 @@ def _label(node_id: str, index: dict[str, dict[str, Any]]) -> str:
 
 
 def _match_focus_node(query: str, index: dict[str, dict[str, Any]]) -> str | None:
+    """
+    Match a focus node from the query using multi-strategy fuzzy matching:
+    1. Exact node ID/label substring in query (original behavior)
+    2. Filename stem from query matched against node ID basenames
+    3. Any word in query matched against node ID parts
+    """
+    import re
     q = query.lower()
+
+    # Strategy 1: exact substring match (original)
     for node_id, data in index.items():
         label = str(data.get("label", "")).lower()
         if node_id.lower() in q or (label and label in q):
             return node_id
+
+    # Strategy 2: extract filenames/stems from query (e.g. "database.py" or "database")
+    # Find any word that looks like a filename (has extension) or is a module name
+    file_mentions = re.findall(
+        r'[\w/\\.-]+\.(?:py|js|ts|java|go|rb|cpp|c|h|cs|php|rs|kt|swift|yaml|yml|json|toml|cfg|ini|txt|md)',
+        query, re.IGNORECASE
+    )
+    # Also extract bare words that could be module names (3+ chars, no spaces)
+    word_mentions = re.findall(r'\b([a-zA-Z_][a-zA-Z0-9_]{2,})\b', query)
+
+    # Build a set of candidate terms (basenames and stems)
+    candidates: list[str] = []
+    for f in file_mentions:
+        basename = f.replace('\\', '/').split('/')[-1].lower()
+        stem = basename.rsplit('.', 1)[0].lower()
+        candidates.extend([basename, stem, f.lower()])
+    for w in word_mentions:
+        candidates.append(w.lower())
+
+    # Match candidates against node IDs (compare basenames)
+    for candidate in candidates:
+        for node_id, data in index.items():
+            nid_lower = node_id.lower()
+            nid_basename = nid_lower.replace('\\', '/').split('/')[-1]
+            nid_stem = nid_basename.rsplit('.', 1)[0] if '.' in nid_basename else nid_basename
+            label_lower = str(data.get("label", "")).lower()
+            label_basename = label_lower.replace('\\', '/').split('/')[-1]
+
+            if (
+                candidate == nid_basename
+                or candidate == nid_stem
+                or candidate == label_basename
+                or (len(candidate) >= 4 and candidate in nid_lower)
+            ):
+                return node_id
+
     return None
 
 

@@ -46,13 +46,17 @@ def reload_from_env() -> None:
     global VECTOR_API_URL, GRAPH_DB_URL, DEFAULT_REPOSITORY_ID
 
     LLM_PROVIDER = _env("LLM_PROVIDER", "groq").lower()
-    LLM_MAX_TOKENS = int(_env("LLM_MAX_TOKENS", "2048"))
+    LLM_MAX_TOKENS = int(_env("LLM_MAX_TOKENS", "4096"))
     LLM_TEMPERATURE = float(_env("LLM_TEMPERATURE", "0.2"))
     LLM_SYSTEM_PROMPT = _env(
         "LLM_SYSTEM_PROMPT",
-        "You are an expert software architect analyzing real repository dependency graphs. "
-        "Be specific, cite file paths from the context, use markdown sections, and never invent "
-        "files or dependencies that are not in the provided data.",
+        "You are an expert software architect and repository analyst. "
+        "Your primary job is to DIRECTLY ANSWER the user's specific question or scenario — "
+        "do not deflect into generic architectural overviews unless that is what was asked. "
+        "When the user asks about removing, replacing, or changing a specific file, "
+        "reason through the exact impact on dependents from the provided graph and dependency data. "
+        "Cite actual file paths from the context. Use markdown sections. "
+        "Never invent files or dependencies that are not in the provided data.",
     )
     USE_MOCK_LLM = _env("USE_MOCK_LLM", "false").lower() == "true"
 

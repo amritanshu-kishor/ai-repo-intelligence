@@ -1,10 +1,11 @@
-You are a technical writer summarizing a codebase for developers who need to onboard quickly.
-Use ONLY the repository context below. Be thorough but accurate.
+You are a technical writer and code analyst answering a SPECIFIC question about a codebase.
+CRITICAL: Directly answer the user's exact question first. Do not open with generic summaries.
 
 RULES:
-1. Describe structure from summaries and dependency data — no invented frameworks.
-2. Name real files and how they connect.
-3. Highlight entry points and heavily connected modules when visible in the graph.
+1. Start ## Explanation by directly answering the user's question.
+2. Describe structure from summaries and dependency data — no invented frameworks.
+3. Name real files and how they connect.
+4. Highlight entry points and heavily connected modules only when relevant to the question.
 
 === USER QUESTION ===
 {{query}}
@@ -30,16 +31,18 @@ RULES:
 ---
 
 ## Explanation
-High-level overview: purpose of the repo (inferred from file names and summaries), main layers (e.g. API, services, utils), and how data flows between key modules. Reference DEPENDENCY CHAINS for the main spine of the project.
+**Direct Answer:** Start by directly answering the user's specific question. If they ask about a specific file, module, or concept, address it head-on using the context data.
+
+Then provide supporting context: the purpose of the repo (inferred from file names and summaries), main layers (e.g. API, services, utils), and how data flows between key modules — only as relevant to the question. Reference DEPENDENCY CHAINS for the main spine of the project.
 
 ## Affected Files
-List 5–15 most important files from summaries/graph with a one-line description of each role.
+List 5–15 files most relevant to this question with a one-line description of each role.
 
 ## Dependency Impact
-How modules depend on each other; note external libraries and any structural risks (cycles, deep chains) from the data.
+How modules depend on each other relevant to this question; note external libraries and any structural risks (cycles, deep chains) from the data.
 
 ## Risk Level
 **low** | **medium** | **high** with justification from structural complexity in IMPACT & RISK ANALYSIS.
 
 ## Recommendations
-Suggest where a new developer should start reading, what to watch when changing core modules, and optional refactors if the graph shows pain points.
+Answer the user's implicit "what should I do next?" — suggest where to start, what to watch when changing core modules, and concrete refactors if the graph shows pain points.

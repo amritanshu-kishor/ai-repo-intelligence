@@ -12,7 +12,7 @@ from ai.contracts import IntentResult, make_intent_result, new_request_id
 VALID_INTENTS = ("impact", "summary", "dependency", "graph", "general")
 
 _RULES: list[tuple[str, re.Pattern[str]]] = [
-    ("impact", re.compile(r"\b(impact|affect|break|change|modify|refactor)\b", re.I)),
+    ("impact", re.compile(r"\b(impact|affect|break|change|modify|refactor|remove|delete|update|replace)\b", re.I)),
     ("dependency", re.compile(r"\b(depend|package|import|require|coupling)\b", re.I)),
     ("summary", re.compile(r"\b(summar|overview|explain|describe|what does)\b", re.I)),
     ("graph", re.compile(r"\b(graph|path|connected|upstream|downstream|module)\b", re.I)),

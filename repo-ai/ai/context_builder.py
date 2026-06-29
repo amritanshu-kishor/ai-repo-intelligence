@@ -49,9 +49,9 @@ except ImportError:
 # Intent → which context slices to include in the prompt payload
 _INTENT_DATA_KEYS: dict[str, tuple[str, ...]] = {
     "impact": ("summaries", "dependencies", "graph", "vector_hits"),
-    "summary": ("summaries", "vector_hits"),
-    "dependency": ("dependencies", "graph", "vector_hits"),
-    "graph": ("summaries", "graph", "vector_hits"),
+    "summary": ("summaries", "dependencies", "graph", "vector_hits"),
+    "dependency": ("dependencies", "graph", "summaries", "vector_hits"),
+    "graph": ("summaries", "graph", "dependencies", "vector_hits"),
     "general": ("summaries", "dependencies", "graph", "vector_hits"),
 }
 
